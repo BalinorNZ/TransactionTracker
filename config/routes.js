@@ -39,6 +39,11 @@ module.exports.routes = {
   'get /transactions': {
     controller: 'transactions',
     action: 'view',
+  },
+
+  'get /transactions/get': {
+    controller: 'transactions',
+    action: 'get',
   }
 
   /***************************************************************************

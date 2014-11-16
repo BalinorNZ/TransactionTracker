@@ -1,4 +1,42 @@
 <div>
-	<h1>Transactions</h1>
-	<p><%= item %></p>
+	<h1 data-bind="text: title"></h1>
+	<p>Transactions: <%= data.length %></p>
+	<p>Vendors: <%= myData.length %></p>
+	<p>Nic total: <%= nic %></p>
+	<p>Katie total: <%= katie %></p>
+
+	<table>
+    <thead>
+      <tr><th>Transactor</th><th>Amount</th><th>Vendor</th><th>Date</th></tr>
+    </thead>
+    <tbody data-bind="foreach: transactions">
+      <tr>
+        <td data-bind="text: transactor"></td>
+        <td data-bind="text: amount"></td>
+        <td data-bind="text: vendor"></td>
+        <td data-bind="text: date"></td>
+      </tr>
+    </tbody>
+	</table>
+
+	<table>
+		<tr><th>Vendor</th><th>Transactions</th><th>Amount</th></tr>
+    <% for(var i=0; i<myData.length; i++) { %>
+      <tr>
+  		<td><%= myData[i].vendor %></td>
+  		<td><%= myData[i].count %></td>
+  		<td>$<%= myData[i].amount.toFixed(2) %></td>
+      </tr>
+    <% } %>
+	</table>
+
+	<table>
+    <% for(var i=0; i<data.length; i++) { %>
+        <tr>
+    	<% for(var j=0; j<data[i].length; j++) { %>
+    		<td><%= data[i][j] %></td>
+	    <% } %>
+        </tr>
+    <% } %>
+	</table>
 </div>
