@@ -1,42 +1,73 @@
-<div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore.js"></script>
+
+<div style="margin-bottom: 30px">
 	<h1 data-bind="text: title"></h1>
-	<p>Transactions: <%= data.length %></p>
-	<p>Vendors: <%= myData.length %></p>
-	<p>Nic total: <%= nic %></p>
-	<p>Katie total: <%= katie %></p>
-
-	<table>
-    <thead>
-      <tr><th>Transactor</th><th>Amount</th><th>Vendor</th><th>Date</th></tr>
-    </thead>
-    <tbody data-bind="foreach: transactions">
-      <tr>
-        <td data-bind="text: transactor"></td>
-        <td data-bind="text: amount"></td>
-        <td data-bind="text: vendor"></td>
-        <td data-bind="text: date"></td>
-      </tr>
-    </tbody>
-	</table>
-
-	<table>
-		<tr><th>Vendor</th><th>Transactions</th><th>Amount</th></tr>
-    <% for(var i=0; i<myData.length; i++) { %>
-      <tr>
-  		<td><%= myData[i].vendor %></td>
-  		<td><%= myData[i].count %></td>
-  		<td>$<%= myData[i].amount.toFixed(2) %></td>
-      </tr>
-    <% } %>
-	</table>
-
-	<table>
-    <% for(var i=0; i<data.length; i++) { %>
-        <tr>
-    	<% for(var j=0; j<data[i].length; j++) { %>
-    		<td><%= data[i][j] %></td>
-	    <% } %>
-        </tr>
-    <% } %>
-	</table>
+  <p class='datepicker'>
+    <span>Start date: </span><input type="text" data-bind="textInput: startDate" /><br>
+    <span>End date: </span><input type="text" data-bind="textInput: endDate" /><br>
+    <span></span><button data-bind="click: filterTable">Go</button>
+    <button data-bind="click: resetDates">Reset</button>
+  </p>
+  <ul class="stuff-list">
+  	<li>Transactions: <span data-bind="text: transactionsCount"></span></li>
+  	<li>Vendors: <span data-bind="text: vendorsCount"></span></li>
+  	<li>Nic total: <%= nic %></li>
+  	<li>Katie total: <%= katie %></li>
+    <li>Total: <span data-bind="text: transactionsTotal"></span></li>
+  </ul>
+  
+  <input type="checkbox" data-bind="checked: showIncome, click: filterTable" id="income" name="income" value="income"><label for="income">Income</label>
+  <input type="checkbox" data-bind="checked: showExpenses, click: filterTable" id="expenses" name="expenses" value="expenses"><label for="expenses">Expenses</label>
 </div>
+
+<div id="navcontainer">
+  <ul id="navlist" class="tables" data-bind="foreach: tables">
+    <li data-bind="text: $data,
+                   css: { selected: $data == $root.chosenTableId() },
+                   click: $root.selectTable">
+    </li>
+  </ul>
+</div>
+
+
+<table class="table Table1">
+  <thead>
+    <tr>
+      <th>Transactor</th>
+      <th data-bind="click: sortTable">Amount</th>
+      <th data-bind="click: sortTable">Vendor</th>
+      <th data-bind="click: sortTable">Date</th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: displayTransactions">
+    <tr>
+      <td data-bind="text: transactor"></td>
+      <td data-bind="text: amount"></td>
+      <td data-bind="text: vendor"></td>
+      <td data-bind="text: date"></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<table class="table Table2">
+	<tr><th>Vendor</th><th>Transactions</th><th>Amount</th></tr>
+  <% for(var i=0; i<myData.length; i++) { %>
+    <tr>
+		<td><%= myData[i].vendor %></td>
+		<td><%= myData[i].count %></td>
+		<td>$<%= myData[i].amount.toFixed(2) %></td>
+    </tr>
+  <% } %>
+</table>
+
+<table class="table Table3">
+  <% for(var i=0; i<data.length; i++) { %>
+      <tr>
+  	<% for(var j=0; j<data[i].length; j++) { %>
+  		<td><%= data[i][j] %></td>
+    <% } %>
+      </tr>
+  <% } %>
+</table>
