@@ -28,7 +28,7 @@ function myViewmodel() {
 		return transactionsCount;
 	});
 
-	self.tables = ['Table1', 'Table2', 'Table3'];
+	self.tables = ['Credit', 'Online', 'Flexi', 'Fixed', 'Table2', 'Table3'];
 	self.chosenTableId = ko.observable();
 	self.showIncome = ko.observable(true);
 	self.showExpenses = ko.observable(true);
@@ -53,16 +53,14 @@ function myViewmodel() {
 	}
 
 	// get transactions list
-	io.socket.get('/transactions/get', function(data, res){
-		self.transactions(data.transactions);
-		self.displayTransactions(self.transactions());
-	});
+	//io.socket.get('/transactions/get', function(data, res){
+	//	self.transactions(data.transactions);
+	//	self.displayTransactions(self.transactions());
+	//});
 
 	function getDate(dateStr) {
-		var year = parseInt(dateStr.substr(6, 9));
-		var month = parseInt(dateStr.substr(3, 5))-1;
-		var day = parseInt(dateStr.substr(0, 2));
-		var date = new Date(year, month, day);
+		var date_a = dateStr.split("/");
+		var date = new Date(parseInt(date_a[2]), parseInt(date_a[1])-1, parseInt(date_a[0]));
 		return date;
 	}
 
@@ -138,12 +136,17 @@ function myViewmodel() {
 	self.selectTable = function(table) {
 		self.chosenTableId(table);
 		console.log(table);
+		// get transactions list
+		io.socket.get('/transactions/get?tab='+table, function(data, res){
+			self.transactions(data.transactions);
+			self.displayTransactions(self.transactions());
+		});
 		$(".table").hide();
 		$(".table."+table).show();
 	};
 
 	// initialize
-	self.selectTable('Table1');
+	self.selectTable('Credit');
 };
 
 ko.applyBindings(new myViewmodel());
