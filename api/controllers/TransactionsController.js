@@ -17,8 +17,6 @@ function cleanData (data) {
 		transactor = 'Katie';
 	} else if (data[0] == '4988-****-****-2718') {
 		transactor = 'Direct';
-	} else {
-		transactor = data[0];
 	}
 	myData[0] = transactor;
 
@@ -27,8 +25,6 @@ function cleanData (data) {
 	if(data[1] == 'D'){
 		amount = -Math.abs(parseFloat(data[2]));
 	} else if(data[1] == 'C') {
-		amount = parseFloat(data[2]);
-	} else {
 		amount = parseFloat(data[2]);
 	}
 	if(ind > -1) {
@@ -42,8 +38,7 @@ function cleanData (data) {
 		myData.push(myDatapoint);
 	}
 
-	var transactor = typeof myData[0] == 'undefined' ? '' : myData[0];
-	var dataObj = { transactor: transactor,
+	var dataObj = { transactor: myData[0],
 					direction: data[1],
 					amount: amount,
 					vendor: data[3],
@@ -55,9 +50,6 @@ function cleanData (data) {
 
 function myIndexOf(arr, o) {    
     for (var i = 0; i < arr.length; i++) {
-    	if (typeof arr[i] == 'undefined') {
-    		return -1;
-    	}
         if (arr[i].vendor == o) {
             return i;
         }
@@ -68,23 +60,13 @@ function myIndexOf(arr, o) {
 module.exports = {
 	get: function(req, res) {
 
-		var tab = 'credit';
-		if(typeof req.param('tab') != 'undefined'){
-			tab = req.param('tab').toLowerCase();
-		}
-
 		var fs = require('fs');
 		var csv = require("fast-csv");
 		var rawData = [];
-<<<<<<< HEAD
 		csv.fromPath("combo.CSV").on("data", function(data){
-=======
-		console.log('Retrieving '+tab+'.CSV');
-		csv.fromPath(tab+'.CSV').on("data", function(data){
->>>>>>> origin/master
-
+		//console.log('Retrieving '+tab+'.CSV');
+		//csv.fromPath(tab+'.CSV').on("data", function(data){
 			var clean = cleanData(data);
-
 			rawData.push(clean);
 		}).on("end", function(){
 			return res.json({ transactions: rawData });

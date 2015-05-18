@@ -29,11 +29,7 @@ function myViewmodel() {
 		return transactionsCount;
 	});
 
-<<<<<<< HEAD
 	self.tables = ['Transactions', 'Vendors', 'VendorsRaw', 'TransactionsRaw'];
-=======
-	self.tables = ['Credit', 'Online', 'Flexi', 'Fixed', 'Table2', 'Table3'];
->>>>>>> origin/master
 	self.chosenTableId = ko.observable();
 	self.showIncome = ko.observable(true);
 	self.showExpenses = ko.observable(true);
@@ -58,18 +54,11 @@ function myViewmodel() {
 	}
 
 	// get transactions list
-<<<<<<< HEAD
 	io.socket.get('/transactions/get', function(data, res){
 		self.transactions(data.transactions);
 		self.displayTransactions(self.transactions());
 		self.displayVendors(getVendors());
 	});
-=======
-	//io.socket.get('/transactions/get', function(data, res){
-	//	self.transactions(data.transactions);
-	//	self.displayTransactions(self.transactions());
-	//});
->>>>>>> origin/master
 
 	function getVendors() {
 		var grouped = _.groupBy(self.displayTransactions(), function(transaction) {
@@ -92,8 +81,10 @@ function myViewmodel() {
 	}
 
 	function getDate(dateStr) {
-		var date_a = dateStr.split("/");
-		var date = new Date(parseInt(date_a[2]), parseInt(date_a[1])-1, parseInt(date_a[0]));
+		var year = parseInt(dateStr.substr(6, 9));
+		var month = parseInt(dateStr.substr(3, 5))-1;
+		var day = parseInt(dateStr.substr(0, 2));
+		var date = new Date(year, month, day);
 		return date;
 	}
 
@@ -179,21 +170,12 @@ function myViewmodel() {
 	self.selectTable = function(table) {
 		self.chosenTableId(table);
 		console.log(table);
-		// get transactions list
-		io.socket.get('/transactions/get?tab='+table, function(data, res){
-			self.transactions(data.transactions);
-			self.displayTransactions(self.transactions());
-		});
 		$(".table").hide();
 		$(".table."+table).show();
 	};
 
 	// initialize
-<<<<<<< HEAD
 	self.selectTable('Transactions');
-=======
-	self.selectTable('Credit');
->>>>>>> origin/master
 };
 
 ko.applyBindings(new myViewmodel());
