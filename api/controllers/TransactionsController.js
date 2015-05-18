@@ -63,7 +63,7 @@ module.exports = {
 		var fs = require('fs');
 		var csv = require("fast-csv");
 		var rawData = [];
-		csv.fromPath("credit.CSV").on("data", function(data){
+		csv.fromPath("combo.CSV").on("data", function(data){
 
 			var clean = cleanData(data);
 

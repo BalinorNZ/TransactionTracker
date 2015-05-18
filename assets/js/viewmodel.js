@@ -4,6 +4,7 @@ function myViewmodel() {
 	self.title = 'Transactions Tracker';
 	self.transactions = ko.observable();
 	self.displayTransactions = ko.observable();
+	self.displayVendors = ko.observable();
 
 	self.transactionsTotal = ko.computed(function() {
 		var total = 0;
@@ -28,7 +29,7 @@ function myViewmodel() {
 		return transactionsCount;
 	});
 
-	self.tables = ['Table1', 'Table2', 'Table3'];
+	self.tables = ['Transactions', 'Vendors', 'VendorsRaw', 'TransactionsRaw'];
 	self.chosenTableId = ko.observable();
 	self.showIncome = ko.observable(true);
 	self.showExpenses = ko.observable(true);
@@ -56,7 +57,28 @@ function myViewmodel() {
 	io.socket.get('/transactions/get', function(data, res){
 		self.transactions(data.transactions);
 		self.displayTransactions(self.transactions());
+		self.displayVendors(getVendors());
 	});
+
+	function getVendors() {
+		var grouped = _.groupBy(self.displayTransactions(), function(transaction) {
+			return transaction.vendor;
+		});
+		var vendors = [];
+		_.each(grouped, function(transactions, index, list) {
+			var total = 0;
+			_.each(transactions, function(transaction, index, list) {
+				total += transaction.amount;
+			});
+			var vendor = {
+					vendor: index,
+					count: _.size(transactions),
+					total: parseFloat(total.toFixed(2)),
+				};
+			vendors.push(vendor);
+		});
+		return vendors;
+	}
 
 	function getDate(dateStr) {
 		var year = parseInt(dateStr.substr(6, 9));
@@ -110,12 +132,22 @@ function myViewmodel() {
 		}
 
 		self.displayTransactions(dateFilter(filtered));
+		self.displayVendors(getVendors());
 
 		// return true so the checkbox event isn't cancelled
 		return true;
 	}
 
-	self.sortTable = function(data, event) {
+	self.sortVendors = function(data, event) {
+		// sort by selected property
+		var prop = event.target.innerText.toLowerCase();
+		console.log('sorting vendor table by '+prop);
+		var sorted = _.sortBy(self.displayVendors(), prop);
+
+		self.displayVendors(sorted);
+	};
+
+	self.sortTransactions = function(data, event) {
 		// sort by selected property
 		var prop = event.target.innerText.toLowerCase();
 		console.log('sorting table by '+prop);
@@ -143,7 +175,7 @@ function myViewmodel() {
 	};
 
 	// initialize
-	self.selectTable('Table1');
+	self.selectTable('Transactions');
 };
 
 ko.applyBindings(new myViewmodel());

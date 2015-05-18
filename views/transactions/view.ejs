@@ -31,13 +31,13 @@
 </div>
 
 
-<table class="table Table1">
+<table class="table Transactions">
   <thead>
     <tr>
       <th>Transactor</th>
-      <th data-bind="click: sortTable">Amount</th>
-      <th data-bind="click: sortTable">Vendor</th>
-      <th data-bind="click: sortTable">Date</th>
+      <th data-bind="click: sortTransactions">Amount</th>
+      <th data-bind="click: sortTransactions">Vendor</th>
+      <th data-bind="click: sortTransactions">Date</th>
     </tr>
   </thead>
   <tbody data-bind="foreach: displayTransactions">
@@ -51,7 +51,24 @@
 </table>
 </div>
 
-<table class="table Table2">
+<table class="table Vendors">
+  <thead>
+    <tr>
+      <th data-bind="click: sortVendors">Vendor</th>
+      <th data-bind="click: sortVendors">Count</th>
+      <th data-bind="click: sortVendors">Total</th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: { data: displayVendors, as: 'vendor' }">
+    <tr>
+      <td data-bind="text: vendor"></td>
+      <td data-bind="text: count"></td>
+      <td data-bind="text: total"></td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="table VendorsRaw">
 	<tr><th>Vendor</th><th>Transactions</th><th>Amount</th></tr>
   <% for(var i=0; i<myData.length; i++) { %>
     <tr>
@@ -62,7 +79,7 @@
   <% } %>
 </table>
 
-<table class="table Table3">
+<table class="table TransactionsRaw">
   <% for(var i=0; i<data.length; i++) { %>
       <tr>
   	<% for(var j=0; j<data[i].length; j++) { %>
