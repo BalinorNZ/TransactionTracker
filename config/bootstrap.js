@@ -14,7 +14,7 @@ module.exports.bootstrap = function(cb) {
   function scanCsv(){
     var fs = require('fs');
     
-    fs.watch('.', function(event, filename){
+    fs.watch('./combo.CSV', function(event, filename){
       if(filename === null){
         filename = 'combo.CSV';
       }

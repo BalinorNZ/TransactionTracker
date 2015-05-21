@@ -6,25 +6,30 @@ module.exports.import = function(filename, cb){
   csv.fromPath("combo.CSV").on("data", function(data){
     var row = formatTransaction(data);
     transactions.push(row);
-
-    // first try to match on kuraCloudInstanceId
-    Transaction.findOne({vendor: row.vendor, amount: row.amount, date: row.date})
-    .exec(function(err, transaction){
-      if(err) return cb(err);
-      
-      if(transaction) {
-        sails.log.info("Transaction already exists.");
-        return;
-      } else {
-        // create db record
-        console.log('Saving transaction: '+row.vendor+' '+row.amount);
-        Transaction.create(transaction).exec(function(err){
-          if(err) console.log(err);
-        });
-      }
-
-    });
   }).on("end", function(){
+
+    _.each(transactions, function(row, key) {
+      // first try to match on kuraCloudInstanceId
+      row.date = new Date(row.date).toISOString();
+      Transaction.findOne({vendor: row.vendor, amount: row.amount, date: row.date}, function(err, transaction){
+        if(err) return cb(err);
+        
+        console.log(transaction);
+
+        if(transaction != undefined) {
+          sails.log.info("Transaction already exists.");
+          return;
+        } else {
+          // create db record
+          console.log('Saving transaction: '+row.vendor+' '+row.amount);
+          Transaction.create(row).exec(function(err){
+            if(err) console.log(err);
+          });
+
+        }
+      });
+    });
+
     sails.log.info("Transactions imported.");
   });
 

@@ -81,21 +81,31 @@ function myIndexOf(arr, o) {
 module.exports = {
 	get: function(req, res) {
 
-		var fs = require('fs');
-		var csv = require("fast-csv");
-		var rawData = [];
-		csv.fromPath("combo.CSV").on("data", function(data){
+		//var fs = require('fs');
+		//var csv = require("fast-csv");
+		//var rawData = [];
+		//csv.fromPath("combo.CSV").on("data", function(data){
 		//console.log('Retrieving '+tab+'.CSV');
 		//csv.fromPath(tab+'.CSV').on("data", function(data){
-			var clean = cleanData(data);
-			rawData.push(clean);
-		}).on("end", function(){
-			return res.json({ transactions: rawData });
+		//	var clean = cleanData(data);
+		//	rawData.push(clean);
+		//}).on("end", function(){
+		//	return res.json({ transactions: rawData });
+		//});
+		Transaction.find().exec(function(err, transactions) {
+			return res.json({ transactions: transactions });
 		});
-
 	},
 
 	view: function (req, res) {
+
+		Transaction.find().exec(function(err, transactions) {
+		    return res.view({ data: transactions,
+				myData: transactions,
+				katie: katieTotal.toFixed(2),
+				nic: nicTotal.toFixed(2),
+			});
+		});
 
 		var fs = require('fs');
 
@@ -137,14 +147,6 @@ module.exports = {
 
 		    rawData.push(data);
 		}).on("end", function(){
-
-			Transaction.find().exec(function(err, transactions) {
-			    return res.view({ data: transactions,
-					myData: transactions,
-					katie: katieTotal.toFixed(2),
-					nic: nicTotal.toFixed(2) });
-			});
-
 		    //return res.view({ data: rawData,
 		    //				myData: myData,
 	    	//				katie: katieTotal.toFixed(2),
