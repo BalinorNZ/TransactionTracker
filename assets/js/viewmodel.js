@@ -176,6 +176,7 @@ function myViewmodel() {
 
 	// initialize
 	self.selectTable('Transactions');
+	//console.log(self.displayTransactions().length);
 };
 
 ko.applyBindings(new myViewmodel());

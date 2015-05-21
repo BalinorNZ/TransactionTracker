@@ -38,14 +38,35 @@ function cleanData (data) {
 		myData.push(myDatapoint);
 	}
 
+	var date = new Date(getDate(data[4]));
+	var date1 = new Date(getDate(data[5]));
+
 	var dataObj = { transactor: myData[0],
 					direction: data[1],
 					amount: amount,
 					vendor: data[3],
-					date: data[4],
-					date1: data[5], };
+					date: date,
+					date1: date1, };
+
+	// create db record
+	//console.log('Saving transaction: '+dataObj.vendor+' '+dataObj.amount);
+	//Transaction.create(dataObj).exec(function(err){
+	//	if(err) {
+	//		console.log(err);
+	//		return res.serverError(err);
+	//	}
+	//});
 
 	return dataObj;
+}
+
+function getDate(dateStr, delimiter) {
+	delimiter = typeof a !== 'undefined' ? delimiter : '/';
+
+	var dateArray = dateStr.split(delimiter);
+	dateArray[0] = dateArray.splice(1, 1, dateArray[0])[0];
+
+	return dateArray.join('/');
 }
 
 function myIndexOf(arr, o) {    
@@ -116,10 +137,18 @@ module.exports = {
 
 		    rawData.push(data);
 		}).on("end", function(){
-		    return res.view({ data: rawData,
-		    				myData: myData,
-	    					katie: katieTotal.toFixed(2),
-	    					nic: nicTotal.toFixed(2) });
+
+			Transaction.find().exec(function(err, transactions) {
+			    return res.view({ data: transactions,
+					myData: transactions,
+					katie: katieTotal.toFixed(2),
+					nic: nicTotal.toFixed(2) });
+			});
+
+		    //return res.view({ data: rawData,
+		    //				myData: myData,
+	    	//				katie: katieTotal.toFixed(2),
+	    	//				nic: nicTotal.toFixed(2) });
 		});
 
 	},

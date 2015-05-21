@@ -11,6 +11,26 @@
 
 module.exports.bootstrap = function(cb) {
 
+  function scanCsv(){
+    var fs = require('fs');
+    
+    fs.watch('.', function(event, filename){
+      if(filename === null){
+        filename = 'combo.CSV';
+      }
+      sails.log.info(event, 'detected for file', filename);
+      if(event == 'change'){
+        Import.import(filename, function(err){
+          if(err){
+            sails.log.error(err);
+          }
+        });
+      }
+    });
+  }
+  
+  scanCsv();
+
   // It's very important to trigger this callback method when you are finished
   // with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
   cb();
