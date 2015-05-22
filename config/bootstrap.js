@@ -11,21 +11,41 @@
 
 module.exports.bootstrap = function(cb) {
 
+  var retry = 0;
+
+  function importCSV(filename){
+  	sails.config.globals.DB_LOCK = true;
+	Import.import(filename, function(err){
+  		if(err) sails.log.error(err);
+	});
+  }
+
+  var tryImport = function(filename){
+  	if(!sails.config.globals.DB_LOCK){
+      	importCSV(filename);
+  	} else {
+  		sails.log.info('DB locked, trying again in a second.');
+  		retry++;
+  		if(retry <= 10) {
+  			setTimeout(function(){ tryImport(filename); }, 1000);
+  		} else {
+  			sails.log.info('Reached maximum retrys.');
+  			retry = 0;
+  		}
+  	}
+  }
+
   function scanCsv(){
     var fs = require('fs');
-    
     fs.watch('./combo.CSV', function(event, filename){
-      if(filename === null){
-        filename = 'combo.CSV';
-      }
+      if(filename === null) filename = 'combo.CSV';
+
       sails.log.info(event, 'detected for file', filename);
-      if(event == 'change'){
-        Import.import(filename, function(err){
-          if(err){
-            sails.log.error(err);
-          }
-        });
-      }
+
+      if(event != 'change') return;
+
+  	  tryImport(filename);
+
     });
   }
   

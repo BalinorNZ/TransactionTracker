@@ -10,12 +10,13 @@ module.exports.import = function(filename, cb){
 
     _.each(transactions, function(row, key) {
       // first try to match on kuraCloudInstanceId
-      row.date = new Date(row.date).toISOString();
-      Transaction.findOne({vendor: row.vendor, amount: row.amount, date: row.date}, function(err, transaction){
+      var match = { vendor: row.vendor,
+                    amount: row.amount,
+                    date: new Date(row.date).toISOString()
+                  };
+      Transaction.findOne(match, function(err, transaction){
         if(err) return cb(err);
         
-        console.log(transaction);
-
         if(transaction != undefined) {
           sails.log.info("Transaction already exists.");
           return;
@@ -29,8 +30,9 @@ module.exports.import = function(filename, cb){
         }
       });
     });
+    sails.log.info('Import complete, unlocking the DB.');
+    sails.config.globals.DB_LOCK = false;
 
-    sails.log.info("Transactions imported.");
   });
 
 }
