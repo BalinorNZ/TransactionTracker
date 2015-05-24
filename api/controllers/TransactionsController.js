@@ -97,6 +97,53 @@ module.exports = {
 		});
 	},
 
+	deleteTransaction: function(req, res) {
+		var id = req.param('id');
+		Transaction.findOne({ id: id }).exec(function(err, transaction) {
+			sails.log.info('Marking transaction as deleted ', transaction.id);
+			transaction.deleted = true;
+			transaction.save(function(err) {
+				if(err) console.log(err);
+			});
+		});
+	},
+
+	getCategories: function(req, res) {
+		Category.find().exec(function(err, categories) {
+			return res.json({ categories: categories });
+		});
+	},
+
+	removeCategory: function(req, res) {
+		var name = req.param('name');
+		Category.findOne({ name: name }).exec(function(err, category) {
+			if(err) return res.serverError(err);
+			if(category){
+				category.destroy(function(err){
+					if(err) return res.serverError(err);
+				 	sails.log.info('Deleting category ', category.name);
+				});
+			}
+		});
+	},
+
+	saveCategory: function (req, res) {
+		var name = req.param('name');
+		Category.findOne({name: name}, function(err, category){
+			if(err) return cb(err);
+			if(category != undefined) {
+				sails.log.info("Category already exists.");
+				return;
+			} else {
+				// create db record
+				sails.log.info('Saving category: ', name);
+				Category.create({ name: name }).exec(function(err){
+					if(err) console.log(err);
+				});
+			}
+		});
+	},
+
 	view: function (req, res) {
 
 		Transaction.find().exec(function(err, transactions) {

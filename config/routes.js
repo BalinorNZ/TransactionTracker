@@ -44,7 +44,27 @@ module.exports.routes = {
   'get /transactions/get': {
     controller: 'transactions',
     action: 'get',
-  }
+  },
+
+  'delete /transactions/delete': {
+    controller: 'transactions',
+    action: 'deleteTransaction',
+  },
+
+  'get /categories/get': {
+    controller: 'transactions',
+    action: 'getCategories',
+  },
+
+  'post /categories/add': {
+    controller: 'transactions',
+    action: 'saveCategory',
+  },
+
+  'delete /categories/delete': {
+    controller: 'transactions',
+    action: 'removeCategory',
+  },
 
   /***************************************************************************
   *                                                                          *

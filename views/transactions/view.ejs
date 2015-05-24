@@ -37,14 +37,16 @@
       <th data-bind="click: sortTransactions">Amount</th>
       <th data-bind="click: sortTransactions">Vendor</th>
       <th data-bind="click: sortTransactions">Date</th>
+      <th>Delete</th>
     </tr>
   </thead>
   <tbody data-bind="foreach: displayTransactions">
-    <tr>
+    <tr data-bind="if: !deleted">
       <td data-bind="text: transactor"></td>
       <td data-bind="text: amount"></td>
       <td data-bind="text: vendor"></td>
-      <td data-bind="text: date"></td>
+      <td data-bind="formatDate: date"></td>
+      <td data-bind="click: $parent.deleteTransaction"><span class="button">delete</span></td>
     </tr>
   </tbody>
 </table>
@@ -56,6 +58,7 @@
       <th data-bind="click: sortVendors">Vendor</th>
       <th data-bind="click: sortVendors">Count</th>
       <th data-bind="click: sortVendors">Total</th>
+      <th>Category</th>
     </tr>
   </thead>
   <tbody data-bind="foreach: { data: displayVendors, as: 'vendor' }">
@@ -63,6 +66,7 @@
       <td data-bind="text: vendor"></td>
       <td data-bind="text: count"></td>
       <td data-bind="text: total"></td>
+      <td><select data-bind="options: $root.categories, optionsText: 'name', optionsCaption: 'Categories'"></select></td>
     </tr>
   </tbody>
 </table>
@@ -87,3 +91,40 @@
       </tr>
   <% } %>
 </table>
+
+<div class="table Categories">
+  <h2>Categories</h2>
+  <form data-bind="submit: saveCategory">
+    <input data-bind="value: newCategory" />
+    <button type="submit">Save</button>
+  </form>
+
+  <ul data-bind="foreach: categories">
+    <li>
+      <span data-bind="text: name"></span>
+      <a href="#" data-bind="click: $parent.removeCategory">Delete</a>
+    </li> 
+  </ul>
+</div>
+
+<table class="table Deleted">
+  <thead>
+    <tr>
+      <th>Transactor</th>
+      <th data-bind="click: sortTransactions">Amount</th>
+      <th data-bind="click: sortTransactions">Vendor</th>
+      <th data-bind="click: sortTransactions">Date</th>
+      <th>Restore</th>
+    </tr>
+  </thead>
+  <tbody data-bind="foreach: displayTransactions">
+    <tr data-bind="if: deleted">
+      <td data-bind="text: transactor"></td>
+      <td data-bind="text: amount"></td>
+      <td data-bind="text: vendor"></td>
+      <td data-bind="formatDate: date"></td>
+      <td data-bind="click: $parent.restoreTransaction"><span class="button">restore</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>

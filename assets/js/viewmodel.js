@@ -2,9 +2,11 @@ function myViewmodel() {
 	var self = this;
 
 	self.title = 'Transactions Tracker';
-	self.transactions = ko.observable();
-	self.displayTransactions = ko.observable();
-	self.displayVendors = ko.observable();
+	self.transactions = ko.observableArray();
+	self.displayTransactions = ko.observableArray();
+	self.displayVendors = ko.observableArray();
+	self.categories = ko.observableArray();
+	self.newCategory = ko.observable();
 
 	self.transactionsTotal = ko.computed(function() {
 		var total = 0;
@@ -29,7 +31,7 @@ function myViewmodel() {
 		return transactionsCount;
 	});
 
-	self.tables = ['Transactions', 'Vendors', 'VendorsRaw', 'TransactionsRaw'];
+	self.tables = ['Transactions', 'Deleted', 'Vendors', 'Categories', 'VendorsRaw', 'TransactionsRaw'];
 	self.chosenTableId = ko.observable();
 	self.showIncome = ko.observable(true);
 	self.showExpenses = ko.observable(true);
@@ -37,6 +39,32 @@ function myViewmodel() {
 	console.log('today: '+today);
 	self.startDate = ko.observable(getToday(-1));
 	self.endDate = ko.observable(getToday());
+
+	self.deleteTransaction = function(transaction) {
+		io.socket.delete('/transactions/delete', transaction, function (data, jwres){});
+		self.displayTransactions.remove(transaction);
+	}
+
+	self.saveCategory = function(){
+		// save category
+		io.socket.post('/categories/add', { name: self.newCategory() }, function(res){
+			console.log(res);
+		});
+		self.categories.push({ name: self.newCategory() });
+		self.newCategory("");
+	}
+
+	self.removeCategory = function(category) {
+		io.socket.delete('/categories/delete', category, function (data, jwres){});
+		self.categories.remove(category);
+	};
+
+	ko.bindingHandlers.formatDate = {
+	    update: function(element, valueAccessor) {
+	        var rawDate = valueAccessor();
+	        $(element).text(formatDate(rawDate));
+	    }
+	}
 
 	function getToday(years){
 		years = typeof years !== 'undefined' ? years : 0;
@@ -60,6 +88,11 @@ function myViewmodel() {
 		self.displayVendors(getVendors());
 	});
 
+	// get categories list
+	io.socket.get('/categories/get', function(data, res){
+		self.categories(data.categories);
+	});
+
 	function getVendors() {
 		var grouped = _.groupBy(self.displayTransactions(), function(transaction) {
 			return transaction.vendor;
@@ -80,6 +113,12 @@ function myViewmodel() {
 		return vendors;
 	}
 
+	function formatDate(rawDate) {
+		var date = new Date(rawDate);
+
+		return date.toDateString().substr(4);
+	}
+
 	function getDate(dateStr) {
 		var year = parseInt(dateStr.substr(6, 9));
 		var month = parseInt(dateStr.substr(3, 5))-1;
@@ -92,7 +131,7 @@ function myViewmodel() {
 		console.log('date filtering '+self.startDate()+' - '+self.endDate());
 
 		filtered = _.reject(transactions, function(transaction){
-			var date = getDate(transaction.date);
+			var date = new Date(transaction.date);
 			var startDate = getDate(self.startDate());
 			var endDate = getDate(self.endDate());
 
@@ -153,13 +192,12 @@ function myViewmodel() {
 		console.log('sorting table by '+prop);
 		if(prop == 'date') {
 			var sorted = _.sortBy(self.displayTransactions(), function(transaction){
-				var date = getDate(transaction.date);
+				var date = new Date(transaction.date);
 				return date;
 			});
 		} else {
 			var sorted = _.sortBy(self.displayTransactions(), prop);
 		}
-
 		self.displayTransactions(dateFilter(sorted));
 	};
 
@@ -169,14 +207,12 @@ function myViewmodel() {
 
 	self.selectTable = function(table) {
 		self.chosenTableId(table);
-		console.log(table);
 		$(".table").hide();
 		$(".table."+table).show();
 	};
 
 	// initialize
 	self.selectTable('Transactions');
-	//console.log(self.displayTransactions().length);
 };
 
 ko.applyBindings(new myViewmodel());
