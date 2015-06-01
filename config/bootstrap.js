@@ -26,7 +26,7 @@ module.exports.bootstrap = function(cb) {
   	} else {
   		sails.log.info('DB locked, trying again in a second.');
   		retry++;
-  		if(retry <= 10) {
+  		if(retry <= 1) {
   			setTimeout(function(){ tryImport(filename); }, 1000);
   		} else {
   			sails.log.info('Reached maximum retrys.');

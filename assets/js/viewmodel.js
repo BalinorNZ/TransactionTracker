@@ -7,55 +7,88 @@ function myViewmodel() {
 	self.displayVendors = ko.observableArray();
 	self.categories = ko.observableArray();
 	self.newCategory = ko.observable();
+	self.tables = ['Transactions', 'Deleted', 'Vendors', 'Categories'];
+	self.chosenTableId = ko.observable();
+	self.showIncome = ko.observable(true);
+	self.showExpenses = ko.observable(true);
+	var today = new Date('today');
+	self.startDate = ko.observable(getToday(-1));
+	self.endDate = ko.observable(getToday());
+
+	self.nicTotal = ko.computed(function() {
+		return getTotal('Nic');
+	}, self);
+
+	self.katieTotal = ko.computed(function() {
+		return getTotal('Katie');
+	}, self);
 
 	self.transactionsTotal = ko.computed(function() {
-		var total = 0;
-		_.each(self.displayTransactions(), function(transaction) {
-			total += parseFloat(transaction.amount);
-		});
-		return total.toFixed(2);
+		return getTotal();
 	}, self);
 
 	self.vendorsCount = ko.computed(function() {
 		var grouped = _.groupBy(self.displayTransactions(), function(transaction) {
-			return transaction.vendor;
+			if(!transaction.deleted()) return transaction.vendor();
 		});
+		// 'undefined' is the group of deleted transactions
+		delete grouped['undefined'];
 		return Object.keys(grouped).length;
 	});
 
 	self.transactionsCount = ko.computed(function() {
 		var transactionsCount = 0;
 		if(typeof self.displayTransactions() != "undefined") {
-			transactionsCount = Object.keys(self.displayTransactions()).length;
+			transactionsCount = _.countBy(self.displayTransactions(), function(transaction){
+				if(!transaction.deleted()) return 'notDeleted';
+			});
 		}
-		return transactionsCount;
+		return transactionsCount.notDeleted;
 	});
 
-	self.tables = ['Transactions', 'Deleted', 'Vendors', 'Categories', 'VendorsRaw', 'TransactionsRaw'];
-	self.chosenTableId = ko.observable();
-	self.showIncome = ko.observable(true);
-	self.showExpenses = ko.observable(true);
-	var today = new Date('today');
-	console.log('today: '+today);
-	self.startDate = ko.observable(getToday(-1));
-	self.endDate = ko.observable(getToday());
-
 	self.deleteTransaction = function(transaction) {
-		io.socket.delete('/transactions/delete', transaction, function (data, jwres){});
-		self.displayTransactions.remove(transaction);
+		io.socket.delete('/transactions/delete', ko.mapping.toJS(transaction), function (data, jwres){});
+		transaction.deleted(true);
+		self.displayVendors(getVendors());
+	}
+
+	self.deleteVendor = function(vendor) {
+        _.each(self.displayTransactions(), function(transaction){
+        	if(transaction.vendor() == vendor.vendor()){
+        		io.socket.delete('/transactions/delete', ko.mapping.toJS(transaction), function (data, jwres){});
+        		transaction.deleted(true);
+        	}
+        });
+        self.displayVendors(getVendors());
+	}
+
+	self.setCategory = function(vendor, event) {
+        _.each(self.displayTransactions(), function(transaction){
+        	if(transaction.vendor() == vendor.vendor()){
+			io.socket.post('/categories/set',
+			{ transaction: transaction.id(), category: vendor.category() },
+			function (data, jwres){});
+        		transaction.category(vendor.category());
+        	}
+        });
+	}
+
+	self.restoreTransaction = function(transaction) {
+		io.socket.post('/transactions/restore', ko.mapping.toJS(transaction), function (data, jwres){});
+		transaction.deleted(false);
+		self.displayVendors(getVendors());
 	}
 
 	self.saveCategory = function(){
 		// save category
 		io.socket.post('/categories/add', { name: self.newCategory() }, function(res){
-			console.log(res);
 		});
-		self.categories.push({ name: self.newCategory() });
+		self.categories.push(self.newCategory());
 		self.newCategory("");
 	}
 
 	self.removeCategory = function(category) {
-		io.socket.delete('/categories/delete', category, function (data, jwres){});
+		io.socket.delete('/categories/delete', { name: category }, function (data, jwres){});
 		self.categories.remove(category);
 	};
 
@@ -64,6 +97,81 @@ function myViewmodel() {
 	        var rawDate = valueAccessor();
 	        $(element).text(formatDate(rawDate));
 	    }
+	}
+
+	// get categories list
+	io.socket.get('/categories/get', function(data, res){
+		_.each(data.categories, function(category){
+			//if(!category.deleted) self.categories.push(ko.mapping.fromJS(category));
+			if(!category.deleted) self.categories.push(category.name);
+		});
+	});
+
+	// get transactions list
+	io.socket.get('/transactions/get', function(data, res){
+		_.each(data.transactions, function(transaction){
+			self.transactions.push(ko.mapping.fromJS(transaction));
+		});
+		//self.transactions(data.transactions);
+		self.displayTransactions(self.transactions());
+		self.displayVendors(getVendors());
+	});
+
+	self.selectTable = function(table) {
+		self.chosenTableId(table);
+		$(".table").hide();
+		$(".table."+table).show();
+	};
+
+	// initialize
+	self.selectTable('Transactions');
+
+	function getVendors1(){
+		return [ko.mapping.fromJS({
+			vendor: 'test',
+			count: 10,
+			total: 100,
+			category: 'Gifts'
+		})];
+	}
+
+	function getVendors() {
+		var grouped = _.groupBy(self.displayTransactions(), function(transaction) {
+			if(transaction.deleted() != true) return transaction.vendor();
+		});
+		var vendors = [];
+		_.each(grouped, function(transactions, index, list) {
+			if(index == 'undefined') return;
+			var total = 0;
+			_.each(transactions, function(transaction, index, list) {
+				total += transaction.amount();
+			});
+			var vendor = ko.mapping.fromJS({
+				vendor: index,
+				count: _.size(transactions),
+				total: parseFloat(total.toFixed(2)),
+				category: transactions[0].category(),
+			});
+			vendors.push(vendor);
+		});
+		return vendors;
+	}
+
+	/*
+	 *	Date functions
+	 */
+	function formatDate(rawDate) {
+		var date = new Date(rawDate);
+
+		return date.toDateString().substr(4);
+	}
+
+	function getDate(dateStr) {
+		var year = parseInt(dateStr.substr(6, 9));
+		var month = parseInt(dateStr.substr(3, 5))-1;
+		var day = parseInt(dateStr.substr(0, 2));
+		var date = new Date(year, month, day);
+		return date;
 	}
 
 	function getToday(years){
@@ -81,57 +189,11 @@ function myViewmodel() {
 		return today;
 	}
 
-	// get transactions list
-	io.socket.get('/transactions/get', function(data, res){
-		self.transactions(data.transactions);
-		self.displayTransactions(self.transactions());
-		self.displayVendors(getVendors());
-	});
-
-	// get categories list
-	io.socket.get('/categories/get', function(data, res){
-		self.categories(data.categories);
-	});
-
-	function getVendors() {
-		var grouped = _.groupBy(self.displayTransactions(), function(transaction) {
-			return transaction.vendor;
-		});
-		var vendors = [];
-		_.each(grouped, function(transactions, index, list) {
-			var total = 0;
-			_.each(transactions, function(transaction, index, list) {
-				total += transaction.amount;
-			});
-			var vendor = {
-					vendor: index,
-					count: _.size(transactions),
-					total: parseFloat(total.toFixed(2)),
-				};
-			vendors.push(vendor);
-		});
-		return vendors;
-	}
-
-	function formatDate(rawDate) {
-		var date = new Date(rawDate);
-
-		return date.toDateString().substr(4);
-	}
-
-	function getDate(dateStr) {
-		var year = parseInt(dateStr.substr(6, 9));
-		var month = parseInt(dateStr.substr(3, 5))-1;
-		var day = parseInt(dateStr.substr(0, 2));
-		var date = new Date(year, month, day);
-		return date;
-	}
-
 	function dateFilter(transactions) {
 		console.log('date filtering '+self.startDate()+' - '+self.endDate());
 
 		filtered = _.reject(transactions, function(transaction){
-			var date = new Date(transaction.date);
+			var date = new Date(transaction.date());
 			var startDate = getDate(self.startDate());
 			var endDate = getDate(self.endDate());
 
@@ -151,6 +213,9 @@ function myViewmodel() {
 		return true;
 	}
 
+	/*
+	 *	Filtering & Sorting
+	 */
 	self.filterTable = function(data, event) {
 		console.log('filtering table');
 
@@ -159,14 +224,14 @@ function myViewmodel() {
 		// filter out income if income not selected
 		if(!self.showIncome()){
 			filtered = _.reject(filtered, function(transaction){
-			    return parseFloat(transaction.amount) > 0 ? true : false; 
+			    return parseFloat(transaction.amount()) > 0 ? true : false; 
 			});
 		}
 
 		// filter out expenses if expenses not selected
 		if(!self.showExpenses()){
 			filtered = _.reject(filtered, function(transaction){
-			    return parseFloat(transaction.amount) > 0 ? false : true; 
+			    return parseFloat(transaction.amount()) > 0 ? false : true; 
 			});
 		}
 
@@ -182,7 +247,7 @@ function myViewmodel() {
 		var prop = event.target.innerText.toLowerCase();
 		console.log('sorting vendor table by '+prop);
 		var sorted = _.sortBy(self.displayVendors(), prop);
-
+		console.log(sorted);
 		self.displayVendors(sorted);
 	};
 
@@ -192,7 +257,7 @@ function myViewmodel() {
 		console.log('sorting table by '+prop);
 		if(prop == 'date') {
 			var sorted = _.sortBy(self.displayTransactions(), function(transaction){
-				var date = new Date(transaction.date);
+				var date = new Date(transaction.date());
 				return date;
 			});
 		} else {
@@ -205,14 +270,15 @@ function myViewmodel() {
 		// stub to use underscore _.groupBy later
 	}
 
-	self.selectTable = function(table) {
-		self.chosenTableId(table);
-		$(".table").hide();
-		$(".table."+table).show();
-	};
-
-	// initialize
-	self.selectTable('Transactions');
+	function getTotal(transactor){
+		var total = 0;
+		_.each(self.displayTransactions(), function(transaction) {
+			if(transaction.deleted()) return;
+			if(transactor === undefined) total += parseFloat(transaction.amount());
+			if(transaction.transactor() == transactor) total += parseFloat(transaction.amount());
+		});
+		return total.toFixed(2);
+	}
 };
 
 ko.applyBindings(new myViewmodel());

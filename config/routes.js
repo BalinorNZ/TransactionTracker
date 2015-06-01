@@ -66,6 +66,16 @@ module.exports.routes = {
     action: 'removeCategory',
   },
 
+  'post /transactions/restore': {
+    controller: 'transactions',
+    action: 'restoreTransaction',
+  },
+
+  'post /categories/set': {
+    controller: 'transactions',
+    action: 'setCategory',
+  },
+
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

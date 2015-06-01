@@ -41,6 +41,7 @@ module.exports = {
 
     category: {
       type: 'string',
+      defaultsTo: null,
     },
 
     deleted: {
