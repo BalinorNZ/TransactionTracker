@@ -123,9 +123,9 @@
     <tbody data-bind="foreach: categories">
       <tr>
         <td data-bind="text: $data"></td>
-        <td></td>
-        <td></td>
-        <td></td>
+        <td data-bind="text: $root.categoryTransactions($data)"></td>
+        <td data-bind="text: $root.categoryVendors($data)"></td>
+        <td data-bind="text: $root.categoryTotal($data)"></td>
         <td data-bind="click: $parent.removeCategory"><span class="button">delete</span></td>
       </tr>
     </tbody>

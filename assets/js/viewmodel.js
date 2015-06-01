@@ -46,6 +46,35 @@ function myViewmodel() {
 		return transactionsCount.notDeleted;
 	});
 
+	self.categoryTransactions = function(category) {
+		var total = 0;
+        _.each(self.displayTransactions(), function(transaction){
+        	if(transaction.category() == category){
+        		total ++;
+        	}
+        });
+        return total;
+	}
+	self.categoryVendors = function(category) {
+		var total = 0;
+        _.each(self.displayVendors(), function(vendor){
+        	if(vendor.category() == category){
+        		total ++;
+        	}
+        });
+        return total;
+	}
+	self.categoryTotal = function(category) {
+		var total = 0;
+        _.each(self.displayTransactions(), function(transaction){
+        	if(transaction.category() == category){
+        		console.log(category+' total: '+total+' plus '+transaction.amount());
+        		total += transaction.amount();
+        	}
+        });
+        return total.toFixed(2);
+	}
+
 	self.deleteTransaction = function(transaction) {
 		io.socket.delete('/transactions/delete', ko.mapping.toJS(transaction), function (data, jwres){});
 		transaction.deleted(true);
@@ -125,15 +154,6 @@ function myViewmodel() {
 
 	// initialize
 	self.selectTable('Transactions');
-
-	function getVendors1(){
-		return [ko.mapping.fromJS({
-			vendor: 'test',
-			count: 10,
-			total: 100,
-			category: 'Gifts'
-		})];
-	}
 
 	function getVendors() {
 		var grouped = _.groupBy(self.displayTransactions(), function(transaction) {
