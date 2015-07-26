@@ -14,6 +14,8 @@ function myViewmodel() {
 	var today = new Date('today');
 	self.startDate = ko.observable(getToday(-1));
 	self.endDate = ko.observable(getToday());
+	self.vendorSortProp = ko.observable();
+	self.transactionSortProp = ko.observable();
 
 	self.nicTotal = ko.computed(function() {
 		return getTotal('Nic');
@@ -68,7 +70,7 @@ function myViewmodel() {
 		var total = 0;
         _.each(self.displayTransactions(), function(transaction){
         	if(transaction.category() == category){
-        		console.log(category+' total: '+total+' plus '+transaction.amount());
+        		//console.log(category+' total: '+total+' plus '+transaction.amount());
         		total += transaction.amount();
         	}
         });
@@ -266,9 +268,16 @@ function myViewmodel() {
 		// sort by selected property
 		var prop = event.target.innerText.toLowerCase();
 		console.log('sorting vendor table by '+prop);
-		var sorted = _.sortBy(self.displayVendors(), prop);
-		console.log(sorted);
-		self.displayVendors(sorted);
+		var sorted = _.sortBy(self.displayVendors(), function(transaction){
+			var value = transaction[prop]();
+			return value;
+		});
+		if(self.vendorSortProp() == prop){
+			self.displayVendors(sorted.reverse());
+		} else {
+			self.displayVendors(sorted);
+		}
+		self.vendorSortProp(prop);
 	};
 
 	self.sortTransactions = function(data, event) {
@@ -281,9 +290,18 @@ function myViewmodel() {
 				return date;
 			});
 		} else {
-			var sorted = _.sortBy(self.displayTransactions(), prop);
+			var sorted = _.sortBy(self.displayTransactions(), function(transaction){
+				var value = transaction[prop]();
+				return value;
+			});
 		}
-		self.displayTransactions(dateFilter(sorted));
+		if(self.transactionSortProp() == prop){
+			var reverse = dateFilter(sorted);
+			self.displayTransactions(reverse.reverse());
+		} else {
+			self.displayTransactions(dateFilter(sorted));
+		}
+		self.transactionSortProp(prop);
 	};
 
 	self.groupTable = function(data, event) {

@@ -1,3 +1,6 @@
+/* global Category */
+/* global sails */
+/* global Transaction */
 /**
  * TransactionsController
  *

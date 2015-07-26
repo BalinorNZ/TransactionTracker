@@ -1,9 +1,12 @@
+/* global _ */
+/* global sails */
+/* global Transaction */
 module.exports.import = function(filename, cb){
 
-  var fs = require('fs');
+  //var fs = require('fs');
   var csv = require("fast-csv");
   var transactions = [];
-  csv.fromPath("combo.CSV").on("data", function(data){
+  csv.fromPath("transactions/combo.CSV").on("data", function(data){
     var row = formatTransaction(data);
     transactions.push(row);
   }).on("end", function(){
@@ -37,11 +40,19 @@ module.exports.import = function(filename, cb){
 
 }
 
+function myIndexOf(arr, o) {    
+    for (var i = 0; i < arr.length; i++) {
+        if (typeof arr[i].vendor != 'undefined' && arr[i].vendor == o) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 function formatTransaction(data) {
   var myData = [];
 
-  var transactor;
+  var transactor = 'n/a';
   if(data[0] == '4988-****-****-2726'){
     //nicTotal += parseFloat(data[2]);
     transactor = 'Nic';
@@ -53,7 +64,7 @@ function formatTransaction(data) {
   }
   myData[0] = transactor;
 
-  var ind = myIndexOf(myData, data[3])
+  var ind = myIndexOf(myData, data[3]);
   var amount = 0;
   if(data[1] == 'D'){
     amount = -Math.abs(parseFloat(data[2]));
@@ -64,7 +75,7 @@ function formatTransaction(data) {
     myData[ind].amount += amount;
     myData[ind].count++;
   } else {
-    myDatapoint = { vendor: data[3], 
+    var myDatapoint = { vendor: data[3], 
             amount: amount,
             count: 1,
             };
@@ -86,20 +97,10 @@ function formatTransaction(data) {
 
 
 function getDate(dateStr, delimiter) {
-  delimiter = typeof a !== 'undefined' ? delimiter : '/';
+  delimiter = typeof delimiter !== 'undefined' ? delimiter : '/';
 
   var dateArray = dateStr.split(delimiter);
   dateArray[0] = dateArray.splice(1, 1, dateArray[0])[0];
 
   return dateArray.join('/');
-}
-
-
-function myIndexOf(arr, o) {    
-    for (var i = 0; i < arr.length; i++) {
-        if (arr[i].vendor == o) {
-            return i;
-        }
-    }
-    return -1;
 }
