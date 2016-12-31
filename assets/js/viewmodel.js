@@ -1,3 +1,5 @@
+/* global _ */
+/* global ko */
 function myViewmodel() {
 	var self = this;
 
@@ -46,6 +48,18 @@ function myViewmodel() {
 			});
 		}
 		return transactionsCount.notDeleted;
+	});
+	self.deletedCount = ko.computed(function() {
+		var deletedCount = 0;
+		if(typeof self.displayTransactions() != "undefined") {
+			deletedCount = _.countBy(self.displayTransactions(), function(transaction){
+				if(transaction.deleted()) return 'deleted';
+			});
+		}
+		return deletedCount.deleted;
+	});
+	self.bothCount = ko.computed(function() {
+		return (self.transactionsCount() + self.deletedCount());
 	});
 
 	self.categoryTransactions = function(category) {
