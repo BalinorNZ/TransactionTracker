@@ -153,12 +153,15 @@ function myViewmodel() {
 	});
 
 	// get transactions list
-	io.socket.get('/transactions/get', function(data, res){
+	io.socket.get('/transactions/get?limit=10000', function(data, res){
+	  // 450ms
 		_.each(data.transactions, function(transaction){
 			self.transactions.push(ko.mapping.fromJS(transaction));
 		});
 		//self.transactions(data.transactions);
+    // 2500ms
 		self.displayTransactions(self.transactions());
+		// 800ms
 		self.displayVendors(getVendors());
 	});
 
@@ -217,9 +220,9 @@ function myViewmodel() {
 		var mm = today.getMonth()+1; //January is 0!
 		var yyyy = today.getFullYear()+years;
 
-		if(dd<10) { dd='0'+dd } 
+		if(dd<10) { dd='0'+dd }
 
-		if(mm<10) { mm='0'+mm } 
+		if(mm<10) { mm='0'+mm }
 
 		today = dd+'/'+mm+'/'+yyyy;
 		return today;
@@ -260,14 +263,14 @@ function myViewmodel() {
 		// filter out income if income not selected
 		if(!self.showIncome()){
 			filtered = _.reject(filtered, function(transaction){
-			    return parseFloat(transaction.amount()) > 0 ? true : false; 
+			    return parseFloat(transaction.amount()) > 0 ? true : false;
 			});
 		}
 
 		// filter out expenses if expenses not selected
 		if(!self.showExpenses()){
 			filtered = _.reject(filtered, function(transaction){
-			    return parseFloat(transaction.amount()) > 0 ? false : true; 
+			    return parseFloat(transaction.amount()) > 0 ? false : true;
 			});
 		}
 

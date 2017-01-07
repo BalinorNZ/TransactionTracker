@@ -4,7 +4,7 @@
 module.exports.import = function(filename, cb){
 
   //var fs = require('fs');
-  var csv = require("fast-csv");
+  const csv = require("fast-csv");
   var transactions = [];
   csv.fromPath("transactions/combo.CSV").on("data", function(data){
     var row = formatTransaction(data);
@@ -19,7 +19,7 @@ module.exports.import = function(filename, cb){
                   };
       Transaction.findOne(match, function(err, transaction){
         if(err) return cb(err);
-        
+
         if(transaction != undefined) {
           sails.log.info("Transaction already exists.");
           return;
@@ -40,7 +40,7 @@ module.exports.import = function(filename, cb){
 
 }
 
-function myIndexOf(arr, o) {    
+function myIndexOf(arr, o) {
     for (var i = 0; i < arr.length; i++) {
         if (typeof arr[i].vendor != 'undefined' && arr[i].vendor == o) {
             return i;
@@ -75,7 +75,7 @@ function formatTransaction(data) {
     myData[ind].amount += amount;
     myData[ind].count++;
   } else {
-    var myDatapoint = { vendor: data[3], 
+    var myDatapoint = { vendor: data[3],
             amount: amount,
             count: 1,
             };

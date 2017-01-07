@@ -33,7 +33,13 @@ module.exports.routes = {
   ***************************************************************************/
 
   '/': {
-    view: 'homepage'
+    controller: 'transactions',
+    action: 'index',
+  },
+
+  '/react': {
+    controller: 'transactions',
+    action: 'react',
   },
 
   'get /transactions': {

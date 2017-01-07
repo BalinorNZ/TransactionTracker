@@ -10,9 +10,20 @@
 
 module.exports = {
 
+  index: function (req, res) {
+    return res.view('index', { layout: 'appLayout' });
+  },
+
+  react: function (req, res) {
+    return res.view('react', { layout: 'tutorialLayout' });
+  },
+
 	get: function(req, res) {
-		console.log('Getting transactions.');
-		Transaction.find().exec(function(err, transactions) {
+    let params = {};
+    if(req.param('limit')) params.limit = req.param('limit');
+		console.time('Transaction.find (get transactions)');
+		Transaction.find(params).exec(function(err, transactions) {
+      console.timeEnd('Transaction.find (get transactions)');
 			return res.json({ transactions: transactions });
 		});
 	},
@@ -52,7 +63,9 @@ module.exports = {
 	},
 
 	getCategories: function(req, res) {
+    console.time('Category.find (get categories)');
 		Category.find().exec(function(err, categories) {
+      console.timeEnd('Category.find (get categories)');
 			return res.json({ categories: categories });
 		});
 	},
@@ -90,10 +103,6 @@ module.exports = {
 	view: function (req, res) {
 		console.log('View route.');
 		return res.view();
-	},
-
-	index: function (req, res) {
-		return res.view({item: "test2"});
 	},
 };
 
@@ -140,7 +149,7 @@ csv.fromPath("credit.CSV").on("data", function(data){
 		myData[ind].amount += amount;
 		myData[ind].count++;
 	} else {
-		myDatapoint = { vendor: data[3], 
+		myDatapoint = { vendor: data[3],
 						amount: amount,
 						count: 1,
 						};
@@ -182,7 +191,7 @@ function cleanData (data) {
 		myData[ind].amount += amount;
 		myData[ind].count++;
 	} else {
-		myDatapoint = { vendor: data[3], 
+		myDatapoint = { vendor: data[3],
 						amount: amount,
 						count: 1,
 						};
@@ -220,7 +229,7 @@ function getDate(dateStr, delimiter) {
 	return dateArray.join('/');
 }
 
-function myIndexOf(arr, o) {    
+function myIndexOf(arr, o) {
     for (var i = 0; i < arr.length; i++) {
         if (arr[i].vendor == o) {
             return i;

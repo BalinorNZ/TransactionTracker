@@ -7,13 +7,34 @@
   "dependencies": {
     "ejs": "^2.5.5",
     "grunt": "^1.0.1",
+    "lodash": "^4.17.4",
+    "moment": "^2.17.1",
+    "react-datepicker": "^0.39.0",
     "sails": "^0.12.11",
     "sails-disk": "^0.10.10",
     "sails.io.js": "^1.1.4",
     "socket.io-client": "^1.7.2"
   },
+  "devDependencies": {
+    "babel-core": "^6.5.1",
+    "babel-loader": "^6.2.2",
+    "babel-preset-es2015": "^6.5.0",
+    "babel-preset-react": "^6.5.0",
+    "concurrently": "^3.1.0",
+    "css-loader": "^0.26.1",
+    "http-server": "^0.8.5",
+    "less-loader": "^2.2.3",
+    "react": "^15.4.1",
+    "react-dom": "^15.4.1",
+    "style-loader": "^0.13.1",
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2",
+    "write-file-webpack-plugin": "^3.4.2"
+  },
   "scripts": {
-    "start": "node app.js",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "webpack-dev-server --inline --colors",
+    "client": "sails lift",
     "debug": "node debug app.js"
   },
   "main": "app.js",
