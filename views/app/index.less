@@ -1,0 +1,43 @@
+@global_font_size: 14px;
+
+body {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+table {
+  display: table;
+  font-size: @global_font_size;
+  text-align: left;
+  td, th {
+    padding: 3px 10px;
+  }
+}
+
+.addCategoryForm {
+  margin-bottom: 15px;
+  button {
+    margin-left: 5px;
+  }
+}
+
+.stuff-list {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-between;
+  li {
+    margin: 0;
+  }
+}
+
+.filter-container {
+  margin-bottom: 30px;
+  position: relative;
+  .vendor-search {
+    display: inline;
+  }
+  .type-filter {
+    float: right;
+    display: inline;
+  }
+}
