@@ -45,8 +45,9 @@ const VendorRow = (props) => (
     <td>{props.vendor.count}</td>
     <td>{props.vendor.total}</td>
     <td>
-      <select value={props.vendor.category}
+      <select value={props.vendor.category ? props.vendor.category : ''}
               onChange={(e) => props.changeCategory(props.vendor.vendor, e.target.value)}>
+        <option></option>
         {props.categories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
       </select>
     </td>

@@ -10,12 +10,14 @@ import { Vendors } from 'vendors';
 import { Categories } from 'categories';
 import { Details } from 'details';
 import { Tabs } from 'tabs';
+window.Perf = require('react-addons-perf')
 
 class App extends React.Component {
   constructor(){
     super();
     this.state = {
       transactions: [],
+      vendors: [],
       categories: [],
       income: true,
       expenses: true,
@@ -68,6 +70,9 @@ class App extends React.Component {
           .then(() => this.setState({transactions}));
       }
     });
+    const vendors = this.state.vendors
+      .map(v => v.vendor === vendor ? Object.assign(v, { category }) : v);
+    this.setState({vendors});
     this.forceUpdate();
   }
   addCategory(e){
@@ -85,14 +90,29 @@ class App extends React.Component {
       .then(() => this.setState({categories}));
     this.forceUpdate();
   }
+
   componentWillMount(){
     fetch('/transactions/get?limit=300')
       .then(res => res.json())
-      .then(({ transactions: transactions }) => this.setState({transactions}));
+      .then(({ transactions: transactions }) => {
+        const transactionGroups = _.groupBy(transactions, (t) => !t.deleted && t.vendor);
+
+        const vendors = _.reduce(transactionGroups, (memo, transactions, vendor) => {
+          if (vendor == 'undefined') return memo;
+          const total = parseFloat(transactions
+            .reduce((total, t) => total + t.amount, 0)
+            .toFixed(2));
+          return memo.concat([{ vendor, total, count: _.size(transactions), category: transactions[0].category }]);
+        }, []);
+
+        return {transactions, vendors};
+      })
+      .then(({ transactions: transactions, vendors: vendors }) => this.setState({transactions, vendors}));
     fetch('/categories/get')
       .then(res => res.json())
       .then(({ categories: categories }) => this.setState({categories}));
   }
+
   search(e){
     this.setState({search: e.target.value});
   }
@@ -160,28 +180,8 @@ class App extends React.Component {
     // filter out deleted
     let transactions = allTransactions.filter(t => !t.deleted);
 
-    // build vendors list -- TODO: refactor this!
-    var grouped = _.groupBy(transactions, function(transaction) {
-      if(transaction.deleted != true) return transaction.vendor;
-    });
-    var vendors = [];
-    _.each(grouped, function(transactions, index) {
-      if(index == 'undefined') return;
-      var total = 0;
-      _.each(transactions, function(transaction) {
-        total += transaction.amount;
-      });
-      var vendor = {
-        vendor: index,
-        count: _.size(transactions),
-        total: parseFloat(total.toFixed(2)),
-        category: transactions[0].category,
-      };
-      vendors.push(vendor);
-    });
-
     // sort vendors
-    vendors = _.sortBy(vendors, (v) => v[this.state.vendorSort]);
+    let vendors = _.sortBy(this.state.vendors, (v) => v[this.state.vendorSort]);
     if(this.state.vendorOrder === 'desc') vendors = vendors.reverse();
 
     // build categories list
