@@ -10,7 +10,7 @@ import { Vendors } from 'vendors';
 import { Categories } from 'categories';
 import { Details } from 'details';
 import { Tabs } from 'tabs';
-window.Perf = require('react-addons-perf')
+window.Perf = require('react-addons-perf');
 
 class App extends React.Component {
   constructor(){
@@ -96,7 +96,6 @@ class App extends React.Component {
       .then(res => res.json())
       .then(({ transactions: transactions }) => {
         const transactionGroups = _.groupBy(transactions, (t) => !t.deleted && t.vendor);
-
         const vendors = _.reduce(transactionGroups, (memo, transactions, vendor) => {
           if (vendor == 'undefined') return memo;
           const total = parseFloat(transactions
@@ -104,7 +103,6 @@ class App extends React.Component {
             .toFixed(2));
           return memo.concat([{ vendor, total, count: _.size(transactions), category: transactions[0].category }]);
         }, []);
-
         return {transactions, vendors};
       })
       .then(({ transactions: transactions, vendors: vendors }) => this.setState({transactions, vendors}));
@@ -187,12 +185,9 @@ class App extends React.Component {
     // build categories list
     let categories = [];
     _.each(this.state.categories, c => {
-      let vendorCount = vendors.reduce((total, v) => v.category === c.name ? total+1 : total, 0);
-      c.vendorCount = vendorCount;
-      let transactionCount = transactions.reduce((total, t) => t.category === c.name ? total+1 : total, 0);
-      c.transactionCount = transactionCount;
-      let categoryTotal = transactions.reduce((total, t) => t.category === c.name ? total + t.amount : total, 0);
-      c.categoryTotal = +categoryTotal.toFixed(2);
+      c.vendorCount = vendors.reduce((total, v) => v.category === c.name ? total+1 : total, 0);
+      c.transactionCount = transactions.reduce((total, t) => t.category === c.name ? total+1 : total, 0);
+      c.categoryTotal = +(transactions.reduce((total, t) => t.category === c.name ? total+t.amount : total, 0).toFixed(2));
       categories.push(c);
     });
 
@@ -203,7 +198,6 @@ class App extends React.Component {
     //<button type="button" onClick={this.resetDates.bind(this)}>Reset</button>
     return (
       <div>
-
         <h2>Transaction Tracker</h2>
 
         <div className="datePicker">
