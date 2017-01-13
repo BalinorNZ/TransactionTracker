@@ -3,7 +3,7 @@ var WriteFilePlugin = require('write-file-webpack-plugin');
 
 module.exports = {
   entry: {
-    tutorial: './views/jsx/index.jsx',
+    tutorial: './views/jsx/todos.jsx',//'./views/jsx/index.jsx',
     app: './views/app/index.jsx',
   },
 
@@ -33,7 +33,7 @@ module.exports = {
 
   module: {
     loaders: [
-      { test: [/\.js$/, /\.jsx$/], exclude: /node_modules/, loader: 'babel-loader', query: { presets: ['react', 'es2015'] }},
+      { test: [/\.js$/, /\.jsx$/], exclude: /node_modules/, loader: 'babel-loader', query: { presets: ['react', 'es2015', 'stage-2'] }},
       //{ test: /\.css$/, loader: "style-loader!css-loader" },
       { test: /\.(less|css)$/, loader: "style!css!less" }
     ]
