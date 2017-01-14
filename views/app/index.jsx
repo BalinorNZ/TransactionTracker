@@ -198,6 +198,29 @@ class App extends React.Component {
     categories = _.sortBy(categories, (c) => c[this.state.categorySort]);
     if(this.state.categoryOrder === 'desc') categories = categories.reverse();
 
+
+    const TransactionsComponent = () => <Transactions transactions={transactions}
+                                                      delRestTransaction={this.deleteTransaction.bind(this)}
+                                                      sort={this.transactionSort.bind(this)} />;
+
+    const DeletedComponent = () => <Transactions transactions={allTransactions.filter(t => t.deleted)}
+                                                 delRestTransaction={this.restoreTransaction.bind(this)}
+                                                 sort={this.transactionSort.bind(this)} />;
+
+    const VendorsComponent = () => <Vendors vendors={vendors}
+                                            deleteVendor={this.deleteVendor.bind(this)}
+                                            categories={this.state.categories}
+                                            changeCategory={this.changeCategory.bind(this)}
+                                            sort={this.vendorSort.bind(this)} />
+
+    const CategoriesComponent = () => <Categories categories={categories}
+                                                  vendors={vendors}
+                                                  transactions={transactions}
+                                                  addCategory={this.addCategory.bind(this)}
+                                                  removeCategory={this.removeCategory.bind(this)}
+                                                  sort={this.categorySort.bind(this)} />
+
+
     //<button type="button" onClick={this.resetDates.bind(this)}>Reset</button>
     return (
       <div>
@@ -233,41 +256,83 @@ class App extends React.Component {
           </div>
         </div>
 
-        <Tabs selected={0}>
-          <div label="Transactions">
-            <Transactions transactions={transactions}
-                          delRestTransaction={this.deleteTransaction.bind(this)}
-                          sort={this.transactionSort.bind(this)} />
+        <Router>
+          <div className="tabs" id="navcontainer">
+            <ul id="navlist" className="tables">
+              <Link to="/" activeOnlyWhenExact>
+                {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Transactions</li>}
+              </Link>
+              <Link to="/deleted">
+                {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Deleted</li>}
+              </Link>
+              <Link to="/vendors">
+                {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Vendors</li>}
+              </Link>
+              <Link to="/categories">
+                {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Categories</li>}
+              </Link>
+            </ul>
+
+            <Match exactly pattern="/" component={TransactionsComponent} />
+            <Match exactly pattern="/deleted" component={DeletedComponent} />
+            <Match exactly pattern="/vendors" component={VendorsComponent} />
+            <Match exactly pattern="/categories" component={CategoriesComponent} />
           </div>
-          <div label="Deleted">
-            <Transactions transactions={allTransactions.filter(t => t.deleted)}
-                          delRestTransaction={this.restoreTransaction.bind(this)}
-                          sort={this.transactionSort.bind(this)} />
-          </div>
-          <div label="Vendors">
-            <Vendors vendors={vendors}
-                     deleteVendor={this.deleteVendor.bind(this)}
-                     categories={this.state.categories}
-                     changeCategory={this.changeCategory.bind(this)}
-                     sort={this.vendorSort.bind(this)} />
-          </div>
-          <div label="Categories">
-            <Categories categories={categories}
-                        vendors={vendors}
-                        transactions={transactions}
-                        addCategory={this.addCategory.bind(this)}
-                        removeCategory={this.removeCategory.bind(this)}
-                        sort={this.categorySort.bind(this)} />
-          </div>
-        </Tabs>
+        </Router>
 
       </div>
     )
   }
 }
 
+
+// class Tab extends React.Component {
+//   render() {
+//     //const { router } = this.props;
+//     const isActive = this.props.router.isActive(this.props.to);
+//
+//     return (
+//       <li className={isActive ? 'selected' : ''} onClick={onClick}><Link {...props}>{this.props.children}</Link></li>
+//     );
+//   }
+// }
+//Tab = withRouter(Tab);
+
+
 const transactions = (state = [], action) => state;
 const transactionReducer = combineReducers({transactions});
 const persistedState = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
 const store = createStore(transactionReducer, persistedState);
 render(<Provider store={store}><App /></Provider>, document.getElementById('main'));
+
+
+/*
+ // Old tabs implementation
+ <Tabs selected={0}>
+ <div label="Transactions">
+ <Transactions transactions={transactions}
+ delRestTransaction={this.deleteTransaction.bind(this)}
+ sort={this.transactionSort.bind(this)} />
+ </div>
+ <div label="Deleted">
+ <Transactions transactions={allTransactions.filter(t => t.deleted)}
+ delRestTransaction={this.restoreTransaction.bind(this)}
+ sort={this.transactionSort.bind(this)} />
+ </div>
+ <div label="Vendors">
+ <Vendors vendors={vendors}
+ deleteVendor={this.deleteVendor.bind(this)}
+ categories={this.state.categories}
+ changeCategory={this.changeCategory.bind(this)}
+ sort={this.vendorSort.bind(this)} />
+ </div>
+ <div label="Categories">
+ <Categories categories={categories}
+ vendors={vendors}
+ transactions={transactions}
+ addCategory={this.addCategory.bind(this)}
+ removeCategory={this.removeCategory.bind(this)}
+ sort={this.categorySort.bind(this)} />
+ </div>
+ </Tabs>
+ */
