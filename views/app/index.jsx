@@ -1,9 +1,11 @@
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
+import { createStore, combineReducers } from 'redux';
+import { connect, Provider } from 'react-redux';
+import { BrowserRouter as Router, Match, Miss, Link } from 'react-router';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
-//import { BrowserRouter, Match, Miss, Link } from 'react-router'
 import 'index.less';
 import { Transactions } from 'transactions';
 import { Vendors } from 'vendors';
@@ -11,6 +13,7 @@ import { Categories } from 'categories';
 import { Details } from 'details';
 import { Tabs } from 'tabs';
 window.Perf = require('react-addons-perf');
+
 
 class App extends React.Component {
   constructor(){
@@ -263,4 +266,8 @@ class App extends React.Component {
   }
 }
 
-render(<App />, document.getElementById('main'));
+const transactions = (state = [], action) => state;
+const transactionReducer = combineReducers({transactions});
+const persistedState = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
+const store = createStore(transactionReducer, persistedState);
+render(<Provider store={store}><App /></Provider>, document.getElementById('main'));
