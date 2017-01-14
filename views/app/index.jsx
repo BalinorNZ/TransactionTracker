@@ -11,7 +11,6 @@ import { Transactions } from 'transactions';
 import { Vendors } from 'vendors';
 import { Categories } from 'categories';
 import { Details } from 'details';
-import { Tabs } from 'tabs';
 window.Perf = require('react-addons-perf');
 
 
@@ -286,53 +285,8 @@ class App extends React.Component {
 }
 
 
-// class Tab extends React.Component {
-//   render() {
-//     //const { router } = this.props;
-//     const isActive = this.props.router.isActive(this.props.to);
-//
-//     return (
-//       <li className={isActive ? 'selected' : ''} onClick={onClick}><Link {...props}>{this.props.children}</Link></li>
-//     );
-//   }
-// }
-//Tab = withRouter(Tab);
-
-
 const transactions = (state = [], action) => state;
 const transactionReducer = combineReducers({transactions});
 const persistedState = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
 const store = createStore(transactionReducer, persistedState);
 render(<Provider store={store}><App /></Provider>, document.getElementById('main'));
-
-
-/*
- // Old tabs implementation
- <Tabs selected={0}>
- <div label="Transactions">
- <Transactions transactions={transactions}
- delRestTransaction={this.deleteTransaction.bind(this)}
- sort={this.transactionSort.bind(this)} />
- </div>
- <div label="Deleted">
- <Transactions transactions={allTransactions.filter(t => t.deleted)}
- delRestTransaction={this.restoreTransaction.bind(this)}
- sort={this.transactionSort.bind(this)} />
- </div>
- <div label="Vendors">
- <Vendors vendors={vendors}
- deleteVendor={this.deleteVendor.bind(this)}
- categories={this.state.categories}
- changeCategory={this.changeCategory.bind(this)}
- sort={this.vendorSort.bind(this)} />
- </div>
- <div label="Categories">
- <Categories categories={categories}
- vendors={vendors}
- transactions={transactions}
- addCategory={this.addCategory.bind(this)}
- removeCategory={this.removeCategory.bind(this)}
- sort={this.categorySort.bind(this)} />
- </div>
- </Tabs>
- */
