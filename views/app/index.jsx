@@ -8,7 +8,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
 import 'index.less';
-import { Transactions } from 'transactions';
+import { TransactionsView, DeletedView } from 'transactions';
 import { Vendors } from 'vendors';
 import { Categories } from 'categories';
 import { Details } from 'details';
@@ -132,7 +132,7 @@ class Main extends React.Component {
   }
 
   render(){
-    let allTransactions = this.props.state.transactions.transactions;
+    let allTransactions = this.props.state.transactions;
 
     // search filter
     if(this.state.search) {
@@ -158,32 +158,20 @@ class Main extends React.Component {
       allTransactions = _.sortBy(allTransactions, (t) => t[this.state.transactionSort]);
     if(this.state.transactionOrder === 'desc') allTransactions = allTransactions.reverse();
 
-    // filter out deleted
-    let transactions = allTransactions.filter(t => !t.deleted);
-
     // sort vendors
     let vendors = _.sortBy(this.props.state.vendors.vendors, (v) => v[this.state.vendorSort]);
     if(this.state.vendorOrder === 'desc') vendors = vendors.reverse();
 
-    // build categories list
-    let categories = [];
-    _.each(this.props.state.categories.categories, c => {
-      c.vendorCount = vendors.reduce((total, v) => v.category === c.name ? total+1 : total, 0);
-      c.transactionCount = transactions.reduce((total, t) => t.category === c.name ? total+1 : total, 0);
-      c.categoryTotal = +(transactions.reduce((total, t) => t.category === c.name ? total+t.amount : total, 0).toFixed(2));
-      categories.push(c);
-    });
-
     // sort categories
-    categories = _.sortBy(categories, (c) => c[this.state.categorySort]);
-    if(this.state.categoryOrder === 'desc') categories = categories.reverse();
+    //categories = _.sortBy(categories, (c) => c[this.state.categorySort]);
+    //if(this.state.categoryOrder === 'desc') categories = categories.reverse();
 
 
-    const TransactionsComponent = () => <Transactions //transactions={transactions}
+    const TransactionsComponent = () => <TransactionsView //transactions={transactions}
                                                       delRestTransaction={this.deleteTransaction.bind(this)}
                                                       sort={this.transactionSort.bind(this)} />;
 
-    const DeletedComponent = () => <Transactions //transactions={allTransactions.filter(t => t.deleted)}
+    const DeletedComponent = () => <DeletedView //transactions={allTransactions.filter(t => t.deleted)}
                                                  delRestTransaction={this.restoreTransaction.bind(this)}
                                                  sort={this.transactionSort.bind(this)} />;
 
@@ -219,7 +207,7 @@ class Main extends React.Component {
         <Details />
 
         <div className="filter-container">
-          <div className="vendor-search">Search {transactions.length} transactions by vendor: <input type="text" onChange={this.search.bind(this)} /></div>
+          <div className="vendor-search">Search {this.props.state.transactions.length} transactions by vendor: <input type="text" onChange={this.search.bind(this)} /></div>
           <div className="type-filter">
             <label>
               <input type="checkbox"
@@ -269,10 +257,7 @@ class Main extends React.Component {
 const persistedState = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
 const store = createStore(rootReducer, persistedState, applyMiddleware(thunkMiddleware));
 store.dispatch(fetchCategories()).then(() => store.getState());
-store.dispatch(fetchTransactions()).then((transactions) => {
-  store.dispatch(loadVendors(transactions.transactions));
-  return store.getState();
-});
+store.dispatch(fetchTransactions()).then(() => store.getState());
 const mapStateToProps = (state) => ({ state });
 const App = connect(mapStateToProps)(Main);
 

@@ -36,6 +36,18 @@ module.exports.routes = {
     controller: 'transactions',
     action: 'index',
   },
+  '/deleted': {
+    controller: 'transactions',
+    action: 'index',
+  },
+  '/vendors': {
+    controller: 'transactions',
+    action: 'index',
+  },
+  '/categories': {
+    controller: 'transactions',
+    action: 'index',
+  },
 
   '/react': {
     controller: 'transactions',

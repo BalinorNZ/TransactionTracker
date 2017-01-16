@@ -2,7 +2,8 @@ import React from 'react';
 import * as _ from 'lodash';
 import { connect } from 'react-redux';
 
-const DetailsView = ({transactions}) => {
+const DetailsView = ({transactions = [], isFetching = true}) => {
+    if(isFetching) return (<div>Loading...</div>);
     return(
       <ul className="stuff-list">
         <Count label={'Transactions'} transactions={transactions.filter(t => !t.deleted)} />
@@ -16,7 +17,8 @@ const DetailsView = ({transactions}) => {
     );
 };
 const mapStateToProps = (state) => ({
-  transactions: state.transactions.transactions,
+  isFetching: state.transactionsView.isFetching,
+  transactions: state.transactions,
 });
 //const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
 export const Details = connect(mapStateToProps)(DetailsView);

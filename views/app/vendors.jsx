@@ -7,9 +7,9 @@ class VendorView extends React.Component {
     this.state = {};
   }
   render(){
-    let vendors = this.props.vendors;
+    if(this.props.isFetching) return(<div>Loading...</div>);
     return (
-      <VendorTable vendors={vendors}
+      <VendorTable vendors={this.props.vendors}
                    deleteVendor={this.props.deleteVendor}
                    categories={this.props.categories}
                    changeCategory={this.props.changeCategory}
@@ -18,9 +18,10 @@ class VendorView extends React.Component {
   }
 }
 const mapStateToProps = (state) => ({
-  transactions: state.transactions.transactions,
-  categories: state.categories.categories,
-  vendors: state.vendors.vendors
+  isFetching: state.transactionsView.isFetching,
+  transactions: state.transactions,
+  categories: state.categories,
+  vendors: state.vendors,
 });
 //const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
 export const Vendors = connect(mapStateToProps)(VendorView);
