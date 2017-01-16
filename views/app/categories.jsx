@@ -1,7 +1,7 @@
 import React from 'react';
-import * as _ from 'lodash';
+import { connect } from 'react-redux';
 
-export class Categories extends React.Component {
+class CategoryView extends React.Component {
   constructor(){
     super();
     this.state = {};
@@ -20,6 +20,13 @@ export class Categories extends React.Component {
     );
   }
 }
+const mapStateToProps = (state) => ({
+  transactions: state.transactions.transactions,
+  categories: state.categories.categories,
+  vendors: state.vendors.vendors
+});
+//const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
+export const Categories = connect(mapStateToProps)(CategoryView);
 
 const CategoryTable = (props) => (
   <table className="Categories">

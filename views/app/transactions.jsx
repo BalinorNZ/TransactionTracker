@@ -1,6 +1,8 @@
 import React from 'react';
+//import { compose } from 'redux';
+import { connect } from 'react-redux';
 
-export class Transactions extends React.Component {
+class TransactionView extends React.Component {
   constructor(){
     super();
     this.state = {};
@@ -19,6 +21,13 @@ export class Transactions extends React.Component {
     );
   }
 }
+const mapStateToProps = (state) => ({
+  transactions: state.transactions.transactions,
+  categories: state.categories.categories,
+  vendors: state.vendors.vendors
+});
+//const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
+export const Transactions = connect(mapStateToProps)(TransactionView);
 
 const TransactionTable = (props) => (
   <table className="Transactions">

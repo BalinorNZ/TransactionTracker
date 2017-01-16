@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
-import { createStore, combineReducers } from 'redux';
+import thunkMiddleware from 'redux-thunk';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { connect, Provider } from 'react-redux';
 import { BrowserRouter as Router, Match, Miss, Link } from 'react-router';
 import DatePicker from 'react-datepicker';
@@ -11,10 +12,12 @@ import { Transactions } from 'transactions';
 import { Vendors } from 'vendors';
 import { Categories } from 'categories';
 import { Details } from 'details';
+import { fetchTransactions, fetchCategories, loadVendors } from 'actions';
+import rootReducer from 'reducers';
 window.Perf = require('react-addons-perf');
 
 
-class App extends React.Component {
+class Main extends React.Component {
   constructor(){
     super();
     this.state = {
@@ -92,34 +95,12 @@ class App extends React.Component {
       .then(() => this.setState({categories}));
     this.forceUpdate();
   }
-
-  componentWillMount(){
-    fetch('/transactions/get?limit=300')
-      .then(res => res.json())
-      .then(({ transactions: transactions }) => {
-        const transactionGroups = _.groupBy(transactions, (t) => !t.deleted && t.vendor);
-        const vendors = _.reduce(transactionGroups, (memo, transactions, vendor) => {
-          if (vendor == 'undefined') return memo;
-          const total = parseFloat(transactions
-            .reduce((total, t) => total + t.amount, 0)
-            .toFixed(2));
-          return memo.concat([{ vendor, total, count: _.size(transactions), category: transactions[0].category }]);
-        }, []);
-        return {transactions, vendors};
-      })
-      .then(({ transactions: transactions, vendors: vendors }) => this.setState({transactions, vendors}));
-    fetch('/categories/get')
-      .then(res => res.json())
-      .then(({ categories: categories }) => this.setState({categories}));
-  }
-
   search(e){
     this.setState({search: e.target.value});
   }
   income(){ this.state.income ? this.setState({income: false}) : this.setState({income: true}) }
   expenses(){ this.state.expenses ? this.setState({expenses: false}) : this.setState({expenses: true}) }
   resetDates(e){
-    console.log("reset dates");
     //startDate(getToday(-1)); //endDate(getToday()); //self.filterTable(); //return true;
   }
   updateStartDate(date){
@@ -151,7 +132,7 @@ class App extends React.Component {
   }
 
   render(){
-    let allTransactions = this.state.transactions;
+    let allTransactions = this.props.state.transactions.transactions;
 
     // search filter
     if(this.state.search) {
@@ -181,12 +162,12 @@ class App extends React.Component {
     let transactions = allTransactions.filter(t => !t.deleted);
 
     // sort vendors
-    let vendors = _.sortBy(this.state.vendors, (v) => v[this.state.vendorSort]);
+    let vendors = _.sortBy(this.props.state.vendors.vendors, (v) => v[this.state.vendorSort]);
     if(this.state.vendorOrder === 'desc') vendors = vendors.reverse();
 
     // build categories list
     let categories = [];
-    _.each(this.state.categories, c => {
+    _.each(this.props.state.categories.categories, c => {
       c.vendorCount = vendors.reduce((total, v) => v.category === c.name ? total+1 : total, 0);
       c.transactionCount = transactions.reduce((total, t) => t.category === c.name ? total+1 : total, 0);
       c.categoryTotal = +(transactions.reduce((total, t) => t.category === c.name ? total+t.amount : total, 0).toFixed(2));
@@ -198,23 +179,23 @@ class App extends React.Component {
     if(this.state.categoryOrder === 'desc') categories = categories.reverse();
 
 
-    const TransactionsComponent = () => <Transactions transactions={transactions}
+    const TransactionsComponent = () => <Transactions //transactions={transactions}
                                                       delRestTransaction={this.deleteTransaction.bind(this)}
                                                       sort={this.transactionSort.bind(this)} />;
 
-    const DeletedComponent = () => <Transactions transactions={allTransactions.filter(t => t.deleted)}
+    const DeletedComponent = () => <Transactions //transactions={allTransactions.filter(t => t.deleted)}
                                                  delRestTransaction={this.restoreTransaction.bind(this)}
                                                  sort={this.transactionSort.bind(this)} />;
 
-    const VendorsComponent = () => <Vendors vendors={vendors}
+    const VendorsComponent = () => <Vendors //vendors={vendors}
                                             deleteVendor={this.deleteVendor.bind(this)}
-                                            categories={this.state.categories}
+                                            //categories={this.props.state.categories.categories}
                                             changeCategory={this.changeCategory.bind(this)}
                                             sort={this.vendorSort.bind(this)} />
 
-    const CategoriesComponent = () => <Categories categories={categories}
-                                                  vendors={vendors}
-                                                  transactions={transactions}
+    const CategoriesComponent = () => <Categories //categories={categories}
+                                                  //vendors={vendors}
+                                                  //transactions={transactions}
                                                   addCategory={this.addCategory.bind(this)}
                                                   removeCategory={this.removeCategory.bind(this)}
                                                   sort={this.categorySort.bind(this)} />
@@ -235,7 +216,7 @@ class App extends React.Component {
                                              onChange={this.updateEndDate.bind(this)} />
         </div>
 
-        <Details transactions={allTransactions} />
+        <Details />
 
         <div className="filter-container">
           <div className="vendor-search">Search {transactions.length} transactions by vendor: <input type="text" onChange={this.search.bind(this)} /></div>
@@ -285,8 +266,51 @@ class App extends React.Component {
 }
 
 
-const transactions = (state = [], action) => state;
-const transactionReducer = combineReducers({transactions});
 const persistedState = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
-const store = createStore(transactionReducer, persistedState);
+const store = createStore(rootReducer, persistedState, applyMiddleware(thunkMiddleware));
+store.dispatch(fetchCategories()).then(() => store.getState());
+store.dispatch(fetchTransactions()).then((transactions) => {
+  store.dispatch(loadVendors(transactions.transactions));
+  return store.getState();
+});
+const mapStateToProps = (state) => ({ state });
+const App = connect(mapStateToProps)(Main);
+
 render(<Provider store={store}><App /></Provider>, document.getElementById('main'));
+
+/* SAGAS
+ import createSagaMiddleware from 'redux-saga';
+ const useReduxDevTools = __DEV__ && window.devToolsExtension;
+
+ const sagaMiddleware = createSagaMiddleware();
+
+ const store = Redux.createStore(reducer,
+ useReduxDevTools ? window.devToolsExtension() : f => f,
+ Redux.applyMiddleware(sagaMiddleware)
+ );
+
+ sagas.forEach(saga => sagaMiddleware.run(saga));
+
+ */
+
+/*
+ Reducers
+
+const transactions = (state = [], action) => {
+  switch (action.type){
+    case 'ADD_TRANSACTION':
+      return [...state, transaction(undefined, action)];
+    default:
+      return state;
+  }
+}
+const transaction = (state = [], action) => {
+  switch (action.type){
+    case 'ADD_TRANSACTION':
+      return action.transaction;
+    default:
+      return state;
+  }
+}
+const transactionReducer = combineReducers({transactions});
+ */

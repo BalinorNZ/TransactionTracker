@@ -1,7 +1,7 @@
 import React from 'react';
-import * as _ from 'lodash';
+import { connect } from 'react-redux';
 
-export class Vendors extends React.Component {
+class VendorView extends React.Component {
   constructor(){
     super();
     this.state = {};
@@ -17,6 +17,13 @@ export class Vendors extends React.Component {
     );
   }
 }
+const mapStateToProps = (state) => ({
+  transactions: state.transactions.transactions,
+  categories: state.categories.categories,
+  vendors: state.vendors.vendors
+});
+//const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
+export const Vendors = connect(mapStateToProps)(VendorView);
 
 const VendorTable = (props) => (
   <table className="Vendors">

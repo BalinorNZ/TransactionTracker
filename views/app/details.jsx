@@ -1,7 +1,8 @@
 import React from 'react';
 import * as _ from 'lodash';
+import { connect } from 'react-redux';
 
-export const Details = ({transactions}) => {
+const DetailsView = ({transactions}) => {
     return(
       <ul className="stuff-list">
         <Count label={'Transactions'} transactions={transactions.filter(t => !t.deleted)} />
@@ -14,6 +15,11 @@ export const Details = ({transactions}) => {
       </ul>
     );
 };
+const mapStateToProps = (state) => ({
+  transactions: state.transactions.transactions,
+});
+//const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
+export const Details = connect(mapStateToProps)(DetailsView);
 
 const Add = ({label, transactions}) => {
   const total = transactions
