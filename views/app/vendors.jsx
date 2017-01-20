@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { getVisibleTransactions } from 'reducers';
+
 
 class VendorView extends React.Component {
   constructor(){
@@ -17,9 +19,9 @@ class VendorView extends React.Component {
     );
   }
 }
-const mapStateToProps = (state) => ({
-  isFetching: state.transactionsView.isFetching,
-  transactions: state.transactions,
+const mapStateToProps = (state, props) => ({
+  isFetching: state.isFetchingTransactions,
+  transactions: getVisibleTransactions(state, props),
   categories: state.categories,
   vendors: state.vendors,
 });

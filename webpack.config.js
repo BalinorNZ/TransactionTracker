@@ -3,7 +3,7 @@ var WriteFilePlugin = require('write-file-webpack-plugin');
 
 module.exports = {
   entry: {
-    tutorial: './views/jsx/todos.jsx',//'./views/jsx/index.jsx',
+    //tutorial: './views/jsx/todos.jsx',//'./views/jsx/index.jsx',
     app: './views/app/index.jsx',
   },
 

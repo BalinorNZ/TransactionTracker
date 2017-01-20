@@ -17,7 +17,7 @@ const DetailsView = ({transactions = [], isFetching = true}) => {
     );
 };
 const mapStateToProps = (state) => ({
-  isFetching: state.transactionsView.isFetching,
+  isFetching: state.isFetchingTransactions,
   transactions: state.transactions,
 });
 //const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });

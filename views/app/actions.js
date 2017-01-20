@@ -13,7 +13,6 @@
  transactionSort
  vendorSort
  categorySort
- search?
  datefilter
  income/expense filter
  */
@@ -54,6 +53,15 @@ export const fetchCategories = () => {
       .then(res => dispatch(receiveCategories(res)));
   }
 }
+
+export const SEARCH = 'SEARCH';
+export const search = (term) => ({ type: SEARCH, search: term });
+
+export const TOGGLE_INCOME_FILTER = 'TOGGLE_INCOME_FILTER';
+export const toggleIncomeFilter = () => ({ type: TOGGLE_INCOME_FILTER });
+
+export const TOGGLE_EXPENSES_FILTER = 'TOGGLE_EXPENSES_FILTER';
+export const toggleExpensesFilter = () => ({ type: TOGGLE_EXPENSES_FILTER });
 
 //export const INVALIDATE_VIEW = 'INVALIDATE_VIEW';
 //export const invalidateView = (view) => ({ type: INVALIDATE_VIEW, view});

@@ -1,17 +1,19 @@
 import React from 'react';
 import { render, unmountComponentAtNode } from 'react-dom';
 import thunkMiddleware from 'redux-thunk';
-import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware } from 'redux';
 import { connect, Provider } from 'react-redux';
 import { BrowserRouter as Router, Match, Miss, Link } from 'react-router';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import moment from 'moment';
 import 'index.less';
-import { TransactionsView, DeletedView } from 'transactions';
+import { Transactions } from 'transactions';
 import { Vendors } from 'vendors';
 import { Categories } from 'categories';
 import { Details } from 'details';
+import { Search } from 'search';
+import { IncomeExpenditureFilter } from 'incomeExpenditureFilter';
 import { fetchTransactions, fetchCategories, loadVendors } from 'actions';
 import rootReducer from 'reducers';
 window.Perf = require('react-addons-perf');
@@ -167,11 +169,11 @@ class Main extends React.Component {
     //if(this.state.categoryOrder === 'desc') categories = categories.reverse();
 
 
-    const TransactionsComponent = () => <TransactionsView //transactions={transactions}
+    const TransactionsComponent = () => <Transactions filter="ACTIVE"
                                                       delRestTransaction={this.deleteTransaction.bind(this)}
                                                       sort={this.transactionSort.bind(this)} />;
 
-    const DeletedComponent = () => <DeletedView //transactions={allTransactions.filter(t => t.deleted)}
+    const DeletedComponent = () => <Transactions filter="DELETED"
                                                  delRestTransaction={this.restoreTransaction.bind(this)}
                                                  sort={this.transactionSort.bind(this)} />;
 
@@ -190,6 +192,7 @@ class Main extends React.Component {
 
 
     //<button type="button" onClick={this.resetDates.bind(this)}>Reset</button>
+    //onChange={this.search.bind(this)} />
     return (
       <div>
         <h2>Transaction Tracker</h2>
@@ -207,21 +210,8 @@ class Main extends React.Component {
         <Details />
 
         <div className="filter-container">
-          <div className="vendor-search">Search {this.props.state.transactions.length} transactions by vendor: <input type="text" onChange={this.search.bind(this)} /></div>
-          <div className="type-filter">
-            <label>
-              <input type="checkbox"
-                     checked={this.state.income}
-                     onChange={this.income.bind(this)} />
-              Income
-            </label>
-            <label>
-              <input type="checkbox"
-                     checked={this.state.expenses}
-                     onChange={this.expenses.bind(this)}/>
-              Expenses
-            </label>
-          </div>
+          <Search />
+          <IncomeExpenditureFilter />
         </div>
 
         <Router>
@@ -259,6 +249,7 @@ const store = createStore(rootReducer, persistedState, applyMiddleware(thunkMidd
 store.dispatch(fetchCategories()).then(() => store.getState());
 store.dispatch(fetchTransactions()).then(() => store.getState());
 const mapStateToProps = (state) => ({ state });
+//const mapDispatchToProps = (dispatch, ownProps) => onChange: () => dispatch(search(ownProps.filter))
 const App = connect(mapStateToProps)(Main);
 
 render(<Provider store={store}><App /></Provider>, document.getElementById('main'));

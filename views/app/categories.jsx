@@ -1,5 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { getVisibleTransactions } from 'reducers';
+
 
 class CategoryView extends React.Component {
   constructor(){
@@ -30,9 +32,9 @@ class CategoryView extends React.Component {
     );
   }
 }
-const mapStateToProps = (state) => ({
-  isFetching: state.transactionsView.isFetching,
-  transactions: state.transactions,
+const mapStateToProps = (state, props) => ({
+  isFetching: state.isFetchingTransactions,
+  transactions: getVisibleTransactions(state, props),
   categories: state.categoryView.categories.map(id => _.find(state.categories, c => c.id === id)),
   vendors: state.vendors
 });

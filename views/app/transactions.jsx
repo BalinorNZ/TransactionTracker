@@ -1,8 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
+import { getVisibleTransactions } from 'reducers';
 
-class Transactions extends React.Component {
+class TransactionsView extends React.Component {
   constructor(){
     super();
     this.state = {};
@@ -22,14 +23,16 @@ class Transactions extends React.Component {
     );
   }
 }
-const mapStateToProps = (state) => ({
-  isFetching: state.transactionsView.isFetching,
-  transactions: state.transactionsView.transactions.map(id => _.find(state.transactions, t => t.id === id)),
-  categories: state.categories,
-  vendors: state.vendors
-});
+const mapStateToProps = (state, props) => {
+  return ({
+    isFetching: state.isFetchingTransactions,
+    transactions: getVisibleTransactions(state, props),//getVisibleTransactions(state, props.filter || 'all'),
+    //state.transactionsView.transactions.map(id => _.find(state.transactions, t => t.id === id)),
+    categories: state.categories,
+    vendors: state.vendors
+})};
 //const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
-export const TransactionsView = connect(mapStateToProps)(Transactions);
+export const Transactions = connect(mapStateToProps)(TransactionsView);
 
 const mapDeletedStateToProps = (state) => ({
   transactions: state.deletedView.transactions.map(id => _.find(state.transactions, t => t.id === id)),
@@ -37,7 +40,7 @@ const mapDeletedStateToProps = (state) => ({
   vendors: state.vendors
 });
 //const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
-export const DeletedView = connect(mapDeletedStateToProps)(Transactions);
+export const DeletedView = connect(mapDeletedStateToProps)(TransactionsView);
 
 const TransactionTable = (props) => (
   <table className="Transactions">
