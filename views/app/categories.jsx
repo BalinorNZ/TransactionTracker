@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getVisibleTransactions } from 'reducers';
+import { getVisibleTransactions, getVendors, getCategories } from 'reducers';
 
 
 class CategoryView extends React.Component {
@@ -10,22 +10,13 @@ class CategoryView extends React.Component {
   }
   render(){
     if(this.props.isFetching) return(<div>Loading...</div>);
-    // build categories list
-    const { vendors, transactions} = this.props;
-    let categories = [];
-    _.each(this.props.categories, c => {
-      c.vendorCount = vendors.reduce((total, v) => v.category === c.name ? total+1 : total, 0);
-      c.transactionCount = transactions.reduce((total, t) => t.category === c.name ? total+1 : total, 0);
-      c.categoryTotal = +(transactions.reduce((total, t) => t.category === c.name ? total+t.amount : total, 0).toFixed(2));
-      categories.push(c);
-    });
     return (
       <div>
         <form className="addCategoryForm" onSubmit={this.props.addCategory.bind(this)}>
           <input name="categoryName" type="text" />
           <button type="submit">Save</button>
         </form>
-        <CategoryTable categories={categories}
+        <CategoryTable categories={this.props.categories}
                        removeCategory={this.props.removeCategory}
                        sort={this.props.sort} />
       </div>
@@ -35,8 +26,8 @@ class CategoryView extends React.Component {
 const mapStateToProps = (state, props) => ({
   isFetching: state.isFetchingTransactions,
   transactions: getVisibleTransactions(state, props),
-  categories: state.categoryView.categories.map(id => _.find(state.categories, c => c.id === id)),
-  vendors: state.vendors
+  categories: getCategories(state, props),
+  vendors: getVendors(state, props),
 });
 //const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
 export const Categories = connect(mapStateToProps)(CategoryView);
@@ -68,7 +59,7 @@ const CategoryRow = (props) => (
     <td>{props.category.vendorCount}</td>
     <td>{props.category.categoryTotal}</td>
     <td>
-      <span className="button" id={props.category.name} onClick={props.removeCategory.bind(this)}>
+      <span className="button" id={props.category.id} onClick={props.removeCategory.bind(this)}>
         delete
       </span>
     </td>

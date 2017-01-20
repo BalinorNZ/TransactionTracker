@@ -30,106 +30,6 @@ const expensesFilter = (state = true, action) => {
   }
 }
 
-const isFetchingTransactions = (state = false, action) => {
-  switch(action.type) {
-    case REQUEST_TRANSACTIONS:
-      return true;
-    case RECEIVE_TRANSACTIONS:
-      return false;
-    default:
-      return state;
-  }
-}
-
-// const transactionsView = (state = { transactions: [], isFetching: false, didInvalidate: false }, action) => {
-//   switch (action.type) {
-//     //case INVALIDATE_VIEW:
-//     //  return Object.assign({}, state, { didInvalidate: true });
-//     case REQUEST_TRANSACTIONS:
-//       return Object.assign({}, state, { isFetching: true, didInvalidate: false });
-//     case RECEIVE_TRANSACTIONS:
-//     return Object.assign({}, state, {
-//       isFetching: false,
-//       didInvalidate: false,
-//       transactions: action.transactions.filter(t => !t.deleted).map(t => t.id),
-//       lastUpdated: action.receivedAt
-//     });
-//     default:
-//       return state;
-//   }
-// }
-
-// const deletedView = (state = { transactions: [], isFetching: false, didInvalidate: false }, action) => {
-//   switch (action.type) {
-//     //case INVALIDATE_VIEW:
-//     //  return Object.assign({}, state, { didInvalidate: true });
-//     case REQUEST_TRANSACTIONS:
-//       return Object.assign({}, state, { isFetching: true, didInvalidate: false });
-//     case RECEIVE_TRANSACTIONS:
-//       return Object.assign({}, state, {
-//         isFetching: false,
-//         didInvalidate: false,
-//         transactions: action.transactions.filter(t => t.deleted).map(t => t.id),
-//         lastUpdated: action.receivedAt
-//       });
-//     default:
-//       return state;
-//   }
-// }
-
-const vendorView = (state = { vendors: [], isFetching: false, didInvalidate: false }, action) => {
-  switch (action.type) {
-    //case INVALIDATE_VIEW:
-    //  return Object.assign({}, state, { didInvalidate: true });
-    case REQUEST_TRANSACTIONS:
-      return Object.assign({}, state, { isFetching: true, didInvalidate: false });
-    case RECEIVE_TRANSACTIONS:
-      return Object.assign({}, state, {
-        isFetching: false,
-        didInvalidate: false,
-        vendors: action.vendors ? action.vendors.map(v => v.id) : [],
-        lastUpdated: action.receivedAt
-      });
-    default:
-      return state;
-  }
-}
-
-const categoryView = (state = { categories: [], isFetching: false, didInvalidate: false }, action) => {
-  switch (action.type) {
-    //case INVALIDATE_VIEW:
-    //  return Object.assign({}, state, { didInvalidate: true });
-    case REQUEST_CATEGORIES:
-      return Object.assign({}, state, { isFetching: true, didInvalidate: false });
-    case RECEIVE_CATEGORIES:
-      return Object.assign({}, state, {
-        isFetching: false,
-        didInvalidate: false,
-        categories: action.categories.map(c => c.id),
-        lastUpdated: action.receivedAt
-      });
-    default:
-      return state;
-  }
-}
-
-const vendors = (state = [], action) => {
-  switch (action.type) {
-    case RECEIVE_TRANSACTIONS:
-      const transactionGroups = _.groupBy(action.transactions, (t) => !t.deleted && t.vendor);
-      const vendors = _.reduce(transactionGroups, (memo, transactions, vendor) => {
-        if (vendor == 'undefined') return memo;
-        const total = parseFloat(transactions
-          .reduce((total, t) => total + t.amount, 0)
-          .toFixed(2));
-        return memo.concat([{ vendor, total, count: _.size(transactions), category: transactions[0].category }]);
-      }, []);
-      return vendors;
-    default:
-      return state;
-  }
-};
-
 // example of getting all transactions from a transactions hash using an array lookup table
 //const getAllTransactions = (state) => state.transactionIds.map(id => state.byId[id]);
 
@@ -142,6 +42,17 @@ const transactions = (state = [], action) => {
   }
 };
 
+const isFetchingTransactions = (state = false, action) => {
+  switch(action.type) {
+    case REQUEST_TRANSACTIONS:
+      return true;
+    case RECEIVE_TRANSACTIONS:
+      return false;
+    default:
+      return state;
+  }
+}
+
 const categories = (state = [], action) => {
   switch (action.type) {
     case RECEIVE_CATEGORIES:
@@ -150,6 +61,17 @@ const categories = (state = [], action) => {
       return state;
   }
 };
+
+const isFetchingCategories = (state = false, action) => {
+  switch(action.type) {
+    case REQUEST_CATEGORIES:
+      return true;
+    case RECEIVE_CATEGORIES:
+      return false;
+    default:
+      return state;
+  }
+}
 
 const search = (state = { search: '' }, action) => {
   switch (action.type) {
@@ -160,12 +82,25 @@ const search = (state = { search: '' }, action) => {
   }
 };
 
+const rootReducer = combineReducers({
+  transactions,
+  isFetchingTransactions,
+  categories,
+  isFetchingCategories,
+  search,
+  incomeFilter,
+  expensesFilter,
+});
+export default rootReducer;
+
+
 /*
  * SELECTORS
 */
 
 // these are non-memoized selectors
 const getTransactions = (state, props) => state.transactions;
+const getCategoryNames = (state, props) => state.categories;
 const getSearch = (state, props) => state.search;
 const getIncomeFilter = (state) => state.incomeFilter;
 const getExpensesFilter = (state) => state.expensesFilter;
@@ -196,19 +131,28 @@ export const getVisibleTransactions = createSelector(
   ),
 );
 
+export const getVendors = createSelector(
+  [ getVisibleTransactions ],
+  (transactions) => {
+    const transactionGroups = _.groupBy(transactions, (t) => !t.deleted && t.vendor);
+    const vendors = _.reduce(transactionGroups, (memo, transactions, vendor) => {
+      if (vendor == 'undefined') return memo;
+      const total = parseFloat(transactions
+        .reduce((total, t) => total + t.amount, 0)
+        .toFixed(2));
+      return memo.concat([{ vendor, total, count: _.size(transactions), category: transactions[0].category }]);
+    }, []);
+    return vendors;
+  }
+);
 
-const rootReducer = combineReducers({
-  transactions,
-  isFetchingTransactions,
-  categories,
-  vendors,
-  //transactionsView,
-  //deletedView,
-  vendorView,
-  categoryView,
-  search,
-  incomeFilter,
-  expensesFilter,
-});
-
-export default rootReducer;
+export const getCategories = createSelector(
+  [ getCategoryNames, getVisibleTransactions, getVendors ],
+  (categoryNames, transactions, vendors) => categoryNames.map(c => ({
+    id: c.id,
+    name: c.name,
+    vendorCount: vendors.reduce((total, v) => v.category === c.name ? total+1 : total, 0),
+    transactionCount: transactions.reduce((total, t) => t.category === c.name ? total+1 : total, 0),
+    categoryTotal: +(transactions.reduce((total, t) => t.category === c.name ? total+t.amount : total, 0).toFixed(2)),
+  }))
+);

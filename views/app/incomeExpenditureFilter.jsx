@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { toggleIncomeFilter, toggleExpensesFilter } from 'actions';
 
+
 const IncomeExpenditureFilterBox = (props) => (
   <div className="type-filter">
     <label>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getVisibleTransactions } from 'reducers';
+import { getVisibleTransactions, getVendors } from 'reducers';
 
 
 class VendorView extends React.Component {
@@ -23,7 +23,7 @@ const mapStateToProps = (state, props) => ({
   isFetching: state.isFetchingTransactions,
   transactions: getVisibleTransactions(state, props),
   categories: state.categories,
-  vendors: state.vendors,
+  vendors: getVendors(state, props),
 });
 //const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
 export const Vendors = connect(mapStateToProps)(VendorView);

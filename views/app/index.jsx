@@ -161,8 +161,8 @@ class Main extends React.Component {
     if(this.state.transactionOrder === 'desc') allTransactions = allTransactions.reverse();
 
     // sort vendors
-    let vendors = _.sortBy(this.props.state.vendors.vendors, (v) => v[this.state.vendorSort]);
-    if(this.state.vendorOrder === 'desc') vendors = vendors.reverse();
+    //let vendors = _.sortBy(this.props.state.vendors.vendors, (v) => v[this.state.vendorSort]);
+    //if(this.state.vendorOrder === 'desc') vendors = vendors.reverse();
 
     // sort categories
     //categories = _.sortBy(categories, (c) => c[this.state.categorySort]);
