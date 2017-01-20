@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { getVisibleTransactions, getVendors, getCategories } from 'reducers';
 
 
-class CategoryView extends React.Component {
+class Categories extends React.Component {
   constructor(){
     super();
     this.state = {};
@@ -30,7 +30,10 @@ const mapStateToProps = (state, props) => ({
   vendors: getVendors(state, props),
 });
 //const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
-export const Categories = connect(mapStateToProps)(CategoryView);
+Categories = connect(mapStateToProps)(Categories);
+
+export default Categories;
+
 
 const CategoryTable = (props) => (
   <table className="Categories">

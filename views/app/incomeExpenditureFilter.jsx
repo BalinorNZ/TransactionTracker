@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { toggleIncomeFilter, toggleExpensesFilter } from 'actions';
 
 
-const IncomeExpenditureFilterBox = (props) => (
+let IncomeExpenditureFilter = (props) => (
   <div className="type-filter">
     <label>
       <input type="checkbox"
@@ -28,4 +28,6 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   toggleIncomeFilter: () => dispatch(toggleIncomeFilter()),
   toggleExpensesFilter: () => dispatch(toggleExpensesFilter()),
 });
-export const IncomeExpenditureFilter = connect(mapStateToProps, mapDispatchToProps)(IncomeExpenditureFilterBox);
+IncomeExpenditureFilter = connect(mapStateToProps, mapDispatchToProps)(IncomeExpenditureFilter);
+
+export default IncomeExpenditureFilter;

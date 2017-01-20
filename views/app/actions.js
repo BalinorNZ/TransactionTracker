@@ -5,8 +5,6 @@
  changeCategory
  addCategory
  removeCategory
- income
- expenses
  resetDates
  updateStartDate
  updateEndDate
@@ -14,7 +12,6 @@
  vendorSort
  categorySort
  datefilter
- income/expense filter
  */
 
 //export const LOAD_VENDORS = 'LOAD_VENDORS';

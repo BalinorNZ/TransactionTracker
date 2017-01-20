@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 import { getVisibleTransactions, getVendors } from 'reducers';
 
 
-class TransactionsView extends React.Component {
+class Transactions extends React.Component {
   constructor(){
     super();
     this.state = {};
@@ -30,7 +30,9 @@ const mapStateToProps = (state, props) => ({
     vendors: getVendors(state, props),
 });
 //const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
-export const Transactions = connect(mapStateToProps)(TransactionsView);
+Transactions = connect(mapStateToProps)(Transactions);
+
+export default Transactions;
 
 
 const TransactionTable = (props) => (

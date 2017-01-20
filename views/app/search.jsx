@@ -1,15 +1,18 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { search } from 'actions';
+import { getVisibleTransactions } from 'reducers';
 
 
-const SearchBox = (props) => (
+let Search = (props) => (
   <div className="vendor-search">
-    Search {props.transactionCount} transactions by vendor:&nbsp;
+    Search {props.transactions.length} transactions by vendor:&nbsp;
     <input type="text" onChange={(e) => props.doSearch(e)} />
   </div>
 );
 
-const mapStateToProps = (state, props) => ({ transactionCount: state.transactions.length });
+const mapStateToProps = (state, props) => ({ transactions: getVisibleTransactions(state, props) });
 const mapDispatchToProps = (dispatch, ownProps) => ({ doSearch: (e) => {dispatch(search(e.target.value))} });
-export const Search = connect(mapStateToProps, mapDispatchToProps)(SearchBox);
+Search = connect(mapStateToProps, mapDispatchToProps)(Search);
+
+export default Search;

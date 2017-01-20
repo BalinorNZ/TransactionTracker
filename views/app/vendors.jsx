@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { getVisibleTransactions, getVendors } from 'reducers';
 
 
-class VendorView extends React.Component {
+class Vendors extends React.Component {
   constructor(){
     super();
     this.state = {};
@@ -26,7 +26,9 @@ const mapStateToProps = (state, props) => ({
   vendors: getVendors(state, props),
 });
 //const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
-export const Vendors = connect(mapStateToProps)(VendorView);
+Vendors = connect(mapStateToProps)(Vendors);
+
+export default Vendors;
 
 const VendorTable = (props) => (
   <table className="Vendors">
