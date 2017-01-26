@@ -1,7 +1,17 @@
 import { combineReducers } from 'redux';
 import { createSelector } from 'reselect';
 import {
-  REQUEST_TRANSACTIONS, RECEIVE_TRANSACTIONS, REQUEST_CATEGORIES, RECEIVE_CATEGORIES, SEARCH, TOGGLE_INCOME_FILTER, TOGGLE_EXPENSES_FILTER
+  REQUEST_TRANSACTIONS,
+  RECEIVE_TRANSACTIONS,
+  REQUEST_CATEGORIES,
+  RECEIVE_CATEGORIES,
+  SEARCH,
+  TOGGLE_INCOME_FILTER,
+  TOGGLE_EXPENSES_FILTER,
+  ADD_CATEGORY,
+  REMOVE_CATEGORY,
+  DELETE_TRANSACTION,
+  RESTORE_TRANSACTION,
 } from 'actions';
 
 // startDate: moment('20130101', 'YYYYMMDD'),
@@ -33,10 +43,23 @@ const expensesFilter = (state = true, action) => {
 // example of getting all transactions from a transactions hash using an array lookup table
 //const getAllTransactions = (state) => state.transactionIds.map(id => state.byId[id]);
 
+const transaction = (state = {}, action) => {
+  switch (action.type) {
+    case DELETE_TRANSACTION:
+    case RESTORE_TRANSACTION:
+      return +action.id === +state.id ? {...state, deleted: !state.deleted} : state;
+    default:
+      return state;
+  }
+}
+
 const transactions = (state = [], action) => {
   switch (action.type) {
     case RECEIVE_TRANSACTIONS:
       return action.transactions;
+    case DELETE_TRANSACTION:
+    case RESTORE_TRANSACTION:
+      return state.map(t => transaction(t, action));
     default:
       return state;
   }
@@ -57,6 +80,11 @@ const categories = (state = [], action) => {
   switch (action.type) {
     case RECEIVE_CATEGORIES:
       return action.categories;
+    case ADD_CATEGORY:
+      return [...state, action.category];
+    case REMOVE_CATEGORY:
+      const index = _.findIndex(state, (c) => c.name === action.category);
+      return [...state.slice(0, index), ...state.slice(index + 1)];
     default:
       return state;
   }
@@ -104,6 +132,9 @@ const getCategoryNames = (state, props) => state.categories;
 const getSearch = (state, props) => state.search;
 const getIncomeFilter = (state) => state.incomeFilter;
 const getExpensesFilter = (state) => state.expensesFilter;
+
+export const getIsFetchingTransactions = (state) => state.isFetchingTransactions;
+export const getIsFetchingCategories = (state) => state.isFetchingCategories;
 
 const filterTransactionsByDeleted = (state, props) => {
   switch (props.filter) {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getVisibleTransactions, getVendors, getCategories } from 'reducers';
+import { addCategory, removeCategory } from 'actions';
 
 
 class Categories extends React.Component {
@@ -8,11 +9,18 @@ class Categories extends React.Component {
     super();
     this.state = {};
   }
+  handleSubmit(e){
+
+  }
   render(){
     if(this.props.isFetching) return(<div>Loading...</div>);
     return (
       <div>
-        <form className="addCategoryForm" onSubmit={this.props.addCategory.bind(this)}>
+        <form className="addCategoryForm"
+              onSubmit={(e) => {
+                e.preventDefault();
+                this.props.addCategory(e.target.categoryName.value);
+              }}>
           <input name="categoryName" type="text" />
           <button type="submit">Save</button>
         </form>
@@ -29,8 +37,12 @@ const mapStateToProps = (state, props) => ({
   categories: getCategories(state, props),
   vendors: getVendors(state, props),
 });
-//const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
-Categories = connect(mapStateToProps)(Categories);
+
+const mapDispatchToProps = (dispatch) => ({
+  addCategory: (category) => dispatch(addCategory(category)),
+  removeCategory: (category) => dispatch(removeCategory(category)),
+});
+Categories = connect(mapStateToProps, mapDispatchToProps)(Categories);
 
 export default Categories;
 
@@ -62,7 +74,7 @@ const CategoryRow = (props) => (
     <td>{props.category.vendorCount}</td>
     <td>{props.category.categoryTotal}</td>
     <td>
-      <span className="button" id={props.category.id} onClick={props.removeCategory.bind(this)}>
+      <span className="button" id={props.category.id} onClick={() => props.removeCategory(props.category.name)}>
         delete
       </span>
     </td>

@@ -2,12 +2,16 @@ import React from 'react';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
 import { getVisibleTransactions, getVendors } from 'reducers';
+import { deleteTransaction, restoreTransaction } from 'actions';
 
 
 class Transactions extends React.Component {
   constructor(){
     super();
     this.state = {};
+  }
+  shouldComponentUpdate(newProps) {
+    return this.props.transactions !== newProps.transactions;
   }
   render(){
     if(this.props.isFetching) return(<div>Loading...</div>);
@@ -17,20 +21,26 @@ class Transactions extends React.Component {
         var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         return Object.assign(t, {date: `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`});
       });
+    let delRestTransaction = this.props.filter === 'ACTIVE'
+      && this.props.deleteTransaction
+      || this.props.restoreTransaction;
     return (
       <TransactionTable transactions={transactions}
-                        delRestTransaction={this.props.delRestTransaction}
+                        delRestTransaction={delRestTransaction}
                         sort={this.props.sort} />
     );
   }
 }
 const mapStateToProps = (state, props) => ({
-    isFetching: state.isFetchingTransactions,
-    transactions: getVisibleTransactions(state, props),
-    vendors: getVendors(state, props),
+  isFetching: state.isFetchingTransactions,
+  transactions: getVisibleTransactions(state, props),
+  vendors: getVendors(state, props),
 });
-//const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
-Transactions = connect(mapStateToProps)(Transactions);
+const mapDispatchToProps = (dispatch) => ({
+  deleteTransaction: (id) => dispatch(deleteTransaction(id)),
+  restoreTransaction: (id) => dispatch(restoreTransaction(id)),
+});
+Transactions = connect(mapStateToProps, mapDispatchToProps)(Transactions);
 
 export default Transactions;
 
@@ -56,20 +66,19 @@ const TransactionTable = (props) => (
   </table>
 );
 
-const TransactionRow = (props) => {
-  return (
-    <tr>
-      <td>{props.transaction.id}</td>
-      <td>{props.transaction.transactor}</td>
-      <td>{props.transaction.amount}</td>
-      <td>{props.transaction.vendor}</td>
-      <td>{props.transaction.date}</td>
-      <td>{props.transaction.category}</td>
-      <td>
-        <span className="button" id={props.transaction.id} onClick={props.delRestTransaction.bind(this)}>
-          {props.transaction.deleted ? 'restore' : 'delete'}
-        </span>
-      </td>
-    </tr>
-  );
-};
+const TransactionRow = (props) => (
+  <tr>
+    <td>{props.transaction.id}</td>
+    <td>{props.transaction.transactor}</td>
+    <td>{props.transaction.amount}</td>
+    <td>{props.transaction.vendor}</td>
+    <td>{props.transaction.date}</td>
+    <td>{props.transaction.category}</td>
+    <td>
+      <span className="button" id={props.transaction.id} onClick={() => props.delRestTransaction(props.transaction.id)}>
+        {props.transaction.deleted ? 'restore' : 'delete'}
+      </span>
+    </td>
+  </tr>
+);
+

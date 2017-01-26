@@ -35,6 +35,7 @@ module.exports = {
 			transaction.deleted = true;
 			transaction.save(function(err) {
 				if(err) console.log(err);
+				return res.json({ id: id });
 			});
 		});
 	},
@@ -46,6 +47,7 @@ module.exports = {
 			transaction.deleted = false;
 			transaction.save(function(err) {
 				if(err) console.log(err);
+        return res.json({ id: id });
 			});
 		});
 	},
@@ -58,6 +60,7 @@ module.exports = {
 			transaction.category = category;
 			transaction.save(function(err) {
 				if(err) console.log(err);
+        return res.json({ transaction: transaction });
 			});
 		});
 	},
@@ -78,6 +81,7 @@ module.exports = {
 				category.destroy(function(err){
 					if(err) return res.serverError(err);
 				 	sails.log.info('Deleting category ', category.name);
+          return res.json({ category: category });
 				});
 			}
 		});
@@ -93,8 +97,9 @@ module.exports = {
 			} else {
 				// create db record
 				sails.log.info('Saving category: ', name);
-				Category.create({ name: name }).exec(function(err){
+				Category.create({ name: name }).exec(function(err, newCategory){
 					if(err) console.log(err);
+          return res.json({ category: newCategory });
 				});
 			}
 		});

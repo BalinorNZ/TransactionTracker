@@ -56,7 +56,11 @@ const VendorRow = (props) => (
     <td>{props.vendor.vendor}</td>
     <td>{props.vendor.count}</td>
     <td>{props.vendor.total}</td>
-    <td><CategorySelect categories={props.categories} vendor={props.vendor} /></td>
+    <td>
+      <CategorySelect categories={props.categories}
+                      vendor={props.vendor}
+                      changeCategory={props.changeCategory} />
+    </td>
     <td>
       <span className="button" id={props.vendor.vendor} onClick={props.deleteVendor.bind(this)}>
         delete
@@ -65,10 +69,26 @@ const VendorRow = (props) => (
   </tr>
 );
 
-const CategorySelect = (props) => (
-  <select value={props.vendor.category ? props.vendor.category : ''}
-          onChange={(e) => props.changeCategory(props.vendor.vendor, e.target.value)}>
-    <option></option>
-    {props.categories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-  </select>
-);
+class CategorySelect extends React.Component {
+  constructor(){
+    super();
+    this.state = {
+      categories: [],
+    }
+  }
+  handleClick(){
+    this.setState({ categories: this.props.categories.filter(c => !(c.name === this.props.vendor.category)) });
+  }
+  //props.categories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)
+  render() {
+    const { vendor, changeCategory } = this.props;
+    return (
+      <select value={vendor.category ? vendor.category : ''}
+              onChange={(e) => changeCategory(vendor.vendor, e.target.value)}
+              onClick={this.handleClick.bind(this)}>
+        {vendor.category ? <option>{vendor.category}</option> : <option></option>}
+        {this.state.categories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+      </select>
+    );
+  }
+}

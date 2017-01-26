@@ -19,7 +19,7 @@ import rootReducer from 'reducers';
 window.Perf = require('react-addons-perf');
 
 
-class Main extends React.Component {
+class App extends React.Component {
   constructor(){
     super();
     this.state = {
@@ -132,7 +132,6 @@ class Main extends React.Component {
       order = 'desc';
     this.setState({categorySort: e.target.id, categoryOrder: order});
   }
-
   render(){
     let allTransactions = this.props.state.transactions;
 
@@ -170,11 +169,9 @@ class Main extends React.Component {
 
 
     const TransactionsComponent = () => <Transactions filter="ACTIVE"
-                                                      delRestTransaction={this.deleteTransaction.bind(this)}
                                                       sort={this.transactionSort.bind(this)} />;
 
     const DeletedComponent = () => <Transactions filter="DELETED"
-                                                 delRestTransaction={this.restoreTransaction.bind(this)}
                                                  sort={this.transactionSort.bind(this)} />;
 
     const VendorsComponent = () => <Vendors //vendors={vendors}
@@ -186,8 +183,8 @@ class Main extends React.Component {
     const CategoriesComponent = () => <Categories //categories={categories}
                                                   //vendors={vendors}
                                                   //transactions={transactions}
-                                                  addCategory={this.addCategory.bind(this)}
-                                                  removeCategory={this.removeCategory.bind(this)}
+                                                  //addCategory={this.addCategory.bind(this)}
+                                                  //removeCategory={this.removeCategory.bind(this)}
                                                   sort={this.categorySort.bind(this)} />
 
 
@@ -243,14 +240,22 @@ class Main extends React.Component {
   }
 }
 
+const configureStore = () => {
+  const persistedState = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
+  const middlewares = [thunkMiddleware];
+  return createStore(
+    rootReducer,
+    persistedState,
+    applyMiddleware(...middlewares),
+  );
+}
 
-const persistedState = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
-const store = createStore(rootReducer, persistedState, applyMiddleware(thunkMiddleware));
-store.dispatch(fetchCategories()).then(() => store.getState());
-store.dispatch(fetchTransactions()).then(() => store.getState());
+const store = configureStore();
+store.dispatch(fetchCategories(store.getState)).then(() => store.getState());
+store.dispatch(fetchTransactions(store.getState)).then(() => store.getState());
+
 const mapStateToProps = (state) => ({ state });
-//const mapDispatchToProps = (dispatch, ownProps) => onChange: () => dispatch(search(ownProps.filter))
-const App = connect(mapStateToProps)(Main);
+App = connect(mapStateToProps)(App);
 
 render(<Provider store={store}><App /></Provider>, document.getElementById('main'));
 
@@ -267,26 +272,4 @@ render(<Provider store={store}><App /></Provider>, document.getElementById('main
 
  sagas.forEach(saga => sagaMiddleware.run(saga));
 
- */
-
-/*
- Reducers
-
-const transactions = (state = [], action) => {
-  switch (action.type){
-    case 'ADD_TRANSACTION':
-      return [...state, transaction(undefined, action)];
-    default:
-      return state;
-  }
-}
-const transaction = (state = [], action) => {
-  switch (action.type){
-    case 'ADD_TRANSACTION':
-      return action.transaction;
-    default:
-      return state;
-  }
-}
-const transactionReducer = combineReducers({transactions});
  */
