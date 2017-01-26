@@ -12,6 +12,7 @@ import {
   REMOVE_CATEGORY,
   DELETE_TRANSACTION,
   RESTORE_TRANSACTION,
+  CHANGE_CATEGORY,
 } from 'actions';
 
 // startDate: moment('20130101', 'YYYYMMDD'),
@@ -47,7 +48,9 @@ const transaction = (state = {}, action) => {
   switch (action.type) {
     case DELETE_TRANSACTION:
     case RESTORE_TRANSACTION:
-      return +action.id === +state.id ? {...state, deleted: !state.deleted} : state;
+      return +state.id === +action.id ? {...state, deleted: !state.deleted} : state;
+    case CHANGE_CATEGORY:
+      return state.vendor === action.vendor ? {...state, category: action.category } : state;
     default:
       return state;
   }
@@ -59,6 +62,7 @@ const transactions = (state = [], action) => {
       return action.transactions;
     case DELETE_TRANSACTION:
     case RESTORE_TRANSACTION:
+    case CHANGE_CATEGORY:
       return state.map(t => transaction(t, action));
     default:
       return state;

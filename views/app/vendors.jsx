@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getVisibleTransactions, getVendors } from 'reducers';
+import { changeCategory } from 'actions';
 
 
 class Vendors extends React.Component {
@@ -25,8 +26,10 @@ const mapStateToProps = (state, props) => ({
   categories: state.categories,
   vendors: getVendors(state, props),
 });
-//const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
-Vendors = connect(mapStateToProps)(Vendors);
+const mapDispatchToProps = (dispatch) => ({
+  changeCategory: (vendor, category) => dispatch(changeCategory(vendor, category)),
+});
+Vendors = connect(mapStateToProps, mapDispatchToProps)(Vendors);
 
 export default Vendors;
 
@@ -84,7 +87,7 @@ class CategorySelect extends React.Component {
     const { vendor, changeCategory } = this.props;
     return (
       <select value={vendor.category ? vendor.category : ''}
-              onChange={(e) => changeCategory(vendor.vendor, e.target.value)}
+              onChange={(e) => this.props.changeCategory(vendor.vendor, e.target.value)}
               onClick={this.handleClick.bind(this)}>
         {vendor.category ? <option>{vendor.category}</option> : <option></option>}
         {this.state.categories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}

@@ -94,6 +94,11 @@ module.exports.routes = {
     action: 'setCategory',
   },
 
+  'post /categories/setbyvendor': {
+    controller: 'transactions',
+    action: 'setCategoryByVendor',
+  },
+
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

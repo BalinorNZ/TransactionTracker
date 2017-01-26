@@ -1,7 +1,6 @@
 import { getIsFetchingTransactions, getIsFetchingCategories } from 'reducers';
 /*
  deleteVendor
- changeCategory
  updateStartDate
  updateEndDate
  transactionSort
@@ -13,6 +12,12 @@ import { getIsFetchingTransactions, getIsFetchingCategories } from 'reducers';
 
 //export const LOAD_VENDORS = 'LOAD_VENDORS';
 //export const loadVendors = (res) => ({ type: LOAD_VENDORS, transactions: res.transactions });
+
+export const CHANGE_CATEGORY = 'CHANGE_CATEGORY';
+export const changeCategory = (vendor, category) => (dispatch) =>
+  fetch(`/categories/setbyvendor?vendor=${vendor}&category=${category}`, {method: 'POST'})
+   .then(res => res.json())
+   .then(json => dispatch({ type: CHANGE_CATEGORY, vendor, category }));
 
 export const RESTORE_TRANSACTION = 'RESTORE_TRANSACTION';
 export const restoreTransaction = (id) => (dispatch) =>

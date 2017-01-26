@@ -10,9 +10,9 @@ class Transactions extends React.Component {
     super();
     this.state = {};
   }
-  shouldComponentUpdate(newProps) {
-    return this.props.transactions !== newProps.transactions;
-  }
+  //shouldComponentUpdate(newProps) {
+  //  return this.props.transactions !== newProps.transactions;
+  //}
   render(){
     if(this.props.isFetching) return(<div>Loading...</div>);
     let transactions = this.props.transactions

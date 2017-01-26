@@ -65,6 +65,16 @@ module.exports = {
 		});
 	},
 
+  setCategoryByVendor: function(req, res) {
+    var vendor = req.param('vendor');
+    var category = req.param('category');
+    Transaction.update({vendor}, {category}, (e, result) => {
+      if(e) console.log("uhoh", e);
+      console.log("res", result);
+      return res.json({ transactions: result });
+    });
+  },
+
 	getCategories: function(req, res) {
     console.time('Category.find (get categories)');
 		Category.find().exec(function(err, categories) {
