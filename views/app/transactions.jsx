@@ -10,9 +10,6 @@ class Transactions extends React.Component {
     super();
     this.state = {};
   }
-  //shouldComponentUpdate(newProps) {
-  //  return this.props.transactions !== newProps.transactions;
-  //}
   render(){
     if(this.props.isFetching) return(<div>Loading...</div>);
     let transactions = this.props.transactions
@@ -24,10 +21,8 @@ class Transactions extends React.Component {
 
     // transaction sort
     const { field, order } = this.props.sort;
-    if(field === 'date')
-      transactions = _.sortBy(transactions, (t) => new Date(t[field]));
-    else
-      transactions = _.sortBy(transactions, (t) => t[field]);
+    if(field === 'date') transactions = _.sortBy(transactions, (t) => new Date(t[field]));
+    else transactions = _.sortBy(transactions, (t) => t[field]);
     if(order === 'DESC') transactions = transactions.reverse();
 
     let fields = ['id', 'transactor', 'amount', 'vendor', 'date', 'category'];

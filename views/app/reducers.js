@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import { createSelector } from 'reselect';
+import moment from 'moment';
 import {
   REQUEST_TRANSACTIONS,
   RECEIVE_TRANSACTIONS,
@@ -17,10 +18,10 @@ import {
   TRANSACTION_SORT,
   VENDOR_SORT,
   CATEGORY_SORT,
+  UPDATE_START_DATE,
+  UPDATE_END_DATE,
 } from 'actions';
 
-// startDate: moment('20130101', 'YYYYMMDD'),
-// endDate: moment(),
 
 const incomeFilter = (state = true, action) => {
   switch(action.type) {
@@ -36,6 +37,24 @@ const expensesFilter = (state = true, action) => {
       return !state;
     default:
       return state
+  }
+}
+
+
+const defaultDateFilter = {
+  startDate: moment('20130101', 'YYYYMMDD'),
+  endDate: moment(),
+}
+const dateFilter = (state = defaultDateFilter, action) => {
+  switch(action.type){
+    //case RESET_DATES:
+    //  return Object.assign({}, state, { startDate: getToday(-1), endDate: getToday() });
+    case UPDATE_START_DATE:
+      return Object.assign({}, state, { startDate: action.date });
+    case UPDATE_END_DATE:
+      return Object.assign({}, state, { endDate: action.date });
+    default:
+      return state;
   }
 }
 
@@ -150,6 +169,7 @@ const rootReducer = combineReducers({
   sort,
   incomeFilter,
   expensesFilter,
+  dateFilter,
 });
 export default rootReducer;
 
@@ -162,8 +182,9 @@ export default rootReducer;
 const getTransactions = (state, props) => state.transactions;
 const getCategoryNames = (state, props) => state.categories;
 const getSearch = (state, props) => state.search;
-const getIncomeFilter = (state) => state.incomeFilter;
-const getExpensesFilter = (state) => state.expensesFilter;
+const getIncomeFilter = state => state.incomeFilter;
+const getExpensesFilter = state => state.expensesFilter;
+const getDateFilter = state => state.dateFilter;
 
 export const getIsFetchingTransactions = (state) => state.isFetchingTransactions;
 export const getIsFetchingCategories = (state) => state.isFetchingCategories;
@@ -176,11 +197,20 @@ const filterTransactionsByDeleted = (state, props) => {
     default:
       return state.transactions.filter(t => !t.deleted);
   }
-}
+};
+
+const filterTransactionsByDate = createSelector(
+  [ getDateFilter, filterTransactionsByDeleted ],
+  (dateFilter, transactions) => _.reject(transactions, (t) => {
+    if(moment(t.date, 'D MMM YYYY') > dateFilter.endDate) return true;
+    if(moment(t.date, 'D MMM YYYY') < dateFilter.startDate) return true;
+    return false;
+  }),
+);
 
 // this is a memoized reselect selector
 const filterTransactionsBySearch = createSelector(
-  [ getSearch, filterTransactionsByDeleted ],
+  [ getSearch, filterTransactionsByDate ],
   (search, transactions) => transactions.filter(t => t.vendor.toLowerCase().indexOf(search.toLowerCase()) > -1),
   //allTransactions.filter(t => t.vendor.toLowerCase().includes(this.state.search.toLowerCase()));
 );

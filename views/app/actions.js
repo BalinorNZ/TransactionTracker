@@ -94,6 +94,12 @@ export const toggleIncomeFilter = () => ({ type: TOGGLE_INCOME_FILTER });
 export const TOGGLE_EXPENSES_FILTER = 'TOGGLE_EXPENSES_FILTER';
 export const toggleExpensesFilter = () => ({ type: TOGGLE_EXPENSES_FILTER });
 
+export const UPDATE_START_DATE = 'UPDATE_START_DATE';
+export const updateStartDate = (date) => ({ type: UPDATE_START_DATE, date });
+
+export const UPDATE_END_DATE = 'UPDATE_END_DATE';
+export const updateEndDate = (date) => ({ type: UPDATE_END_DATE, date });
+
 export const TRANSACTION_SORT = 'TRANSACTION_SORT';
 export const sortTransactions = (field) => ({ type: TRANSACTION_SORT, field });
 
