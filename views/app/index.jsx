@@ -152,42 +152,6 @@ class App extends React.Component {
     if(!this.state.income) allTransactions = allTransactions.filter(t => t.amount < 0);
     if(!this.state.expenses) allTransactions = allTransactions.filter(t => t.amount > 0);
 
-    // transaction sort
-    if(this.state.transactionSort === 'date')
-      allTransactions = _.sortBy(allTransactions, (t) => new Date(t[this.state.transactionSort]));
-    else
-      allTransactions = _.sortBy(allTransactions, (t) => t[this.state.transactionSort]);
-    if(this.state.transactionOrder === 'desc') allTransactions = allTransactions.reverse();
-
-    // sort vendors
-    //let vendors = _.sortBy(this.props.state.vendors.vendors, (v) => v[this.state.vendorSort]);
-    //if(this.state.vendorOrder === 'desc') vendors = vendors.reverse();
-
-    // sort categories
-    //categories = _.sortBy(categories, (c) => c[this.state.categorySort]);
-    //if(this.state.categoryOrder === 'desc') categories = categories.reverse();
-
-
-    const TransactionsComponent = () => <Transactions filter="ACTIVE"
-                                                      sort={this.transactionSort.bind(this)} />;
-
-    const DeletedComponent = () => <Transactions filter="DELETED"
-                                                 sort={this.transactionSort.bind(this)} />;
-
-    const VendorsComponent = () => <Vendors //vendors={vendors}
-                                            deleteVendor={this.deleteVendor.bind(this)}
-                                            //categories={this.props.state.categories.categories}
-                                            changeCategory={this.changeCategory.bind(this)}
-                                            sort={this.vendorSort.bind(this)} />
-
-    const CategoriesComponent = () => <Categories //categories={categories}
-                                                  //vendors={vendors}
-                                                  //transactions={transactions}
-                                                  //addCategory={this.addCategory.bind(this)}
-                                                  //removeCategory={this.removeCategory.bind(this)}
-                                                  sort={this.categorySort.bind(this)} />
-
-
     //<button type="button" onClick={this.resetDates.bind(this)}>Reset</button>
     //onChange={this.search.bind(this)} />
     return (
@@ -228,10 +192,10 @@ class App extends React.Component {
               </Link>
             </ul>
 
-            <Match exactly pattern="/" component={TransactionsComponent} />
-            <Match exactly pattern="/deleted" component={DeletedComponent} />
-            <Match exactly pattern="/vendors" component={VendorsComponent} />
-            <Match exactly pattern="/categories" component={CategoriesComponent} />
+            <Match exactly pattern="/" component={() => <Transactions filter="ACTIVE" />} />
+            <Match exactly pattern="/deleted" component={() => <Transactions filter="DELETED" />} />
+            <Match exactly pattern="/vendors" component={() => <Vendors />} />
+            <Match exactly pattern="/categories" component={() => <Categories />} />
           </div>
         </Router>
 

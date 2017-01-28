@@ -40,6 +40,15 @@ module.exports = {
 		});
 	},
 
+  deleteTransactionsByVendor: function(req, res) {
+    var vendor = req.param('vendor');
+    Transaction.update({vendor}, { deleted: true }, (e, result) => {
+      if(e) console.log("deleteTransactionsByVendor failed", e);
+      sails.log.info('Marking', result.length, 'transactions as deleted.');
+      return res.json({ transactions: result });
+    });
+  },
+
 	restoreTransaction: function(req, res) {
 		var id = req.param('id');
 		Transaction.findOne({ id: id }).exec(function(err, transaction) {
@@ -69,8 +78,8 @@ module.exports = {
     var vendor = req.param('vendor');
     var category = req.param('category');
     Transaction.update({vendor}, {category}, (e, result) => {
-      if(e) console.log("uhoh", e);
-      console.log("res", result);
+      if(e) console.log("setCategoryByVendor failed", e);
+      sails.log.info('Setting category on', result.length, 'transactions.');
       return res.json({ transactions: result });
     });
   },

@@ -13,16 +13,14 @@ import {
   DELETE_TRANSACTION,
   RESTORE_TRANSACTION,
   CHANGE_CATEGORY,
+  DELETE_VENDOR,
+  TRANSACTION_SORT,
+  VENDOR_SORT,
+  CATEGORY_SORT,
 } from 'actions';
 
 // startDate: moment('20130101', 'YYYYMMDD'),
 // endDate: moment(),
-// transactionSort: 'id',
-// transactionOrder: 'asc',
-// vendorSort: 'vendor',
-// vendorOrder: 'asc',
-// categorySort: 'category',
-// categoryOrder: 'asc',
 
 const incomeFilter = (state = true, action) => {
   switch(action.type) {
@@ -51,6 +49,8 @@ const transaction = (state = {}, action) => {
       return +state.id === +action.id ? {...state, deleted: !state.deleted} : state;
     case CHANGE_CATEGORY:
       return state.vendor === action.vendor ? {...state, category: action.category } : state;
+    case DELETE_VENDOR:
+      return state.vendor === action.vendor ? {...state, deleted: true } : state;
     default:
       return state;
   }
@@ -63,6 +63,7 @@ const transactions = (state = [], action) => {
     case DELETE_TRANSACTION:
     case RESTORE_TRANSACTION:
     case CHANGE_CATEGORY:
+    case DELETE_VENDOR:
       return state.map(t => transaction(t, action));
     default:
       return state;
@@ -114,12 +115,39 @@ const search = (state = { search: '' }, action) => {
   }
 };
 
+const defaultSort = {
+  transactions: { field: 'id', order: 'ASC' },
+  deleted: { field: 'id', order: 'ASC' },
+  vendors:  { field: 'vendor', order: 'ASC' },
+  categories:  { field: 'name', order: 'ASC' },
+}
+const sort = (state = defaultSort, action) => {
+  let order = 'ASC', field = action.field, type = 'transactions';
+  switch(action.type) {
+    case TRANSACTION_SORT:
+      type = 'transactions';
+      break;
+    case VENDOR_SORT:
+      type = 'vendors';
+      break;
+    case CATEGORY_SORT:
+      type = 'categories';
+      break;
+    default:
+      return state;
+  }
+  if(state[type].field === field && state[type].order === 'ASC') order = 'DESC';
+  return Object.assign({}, state, { [type]: { field, order }});
+}
+
+
 const rootReducer = combineReducers({
   transactions,
   isFetchingTransactions,
   categories,
   isFetchingCategories,
   search,
+  sort,
   incomeFilter,
   expensesFilter,
 });

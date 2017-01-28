@@ -99,6 +99,11 @@ module.exports.routes = {
     action: 'setCategoryByVendor',
   },
 
+  'post /transactions/deletebyvendor': {
+    controller: 'transactions',
+    action: 'deleteTransactionsByVendor',
+  },
+
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *

@@ -1,11 +1,7 @@
 import { getIsFetchingTransactions, getIsFetchingCategories } from 'reducers';
 /*
- deleteVendor
  updateStartDate
  updateEndDate
- transactionSort
- vendorSort
- categorySort
  datefilter
  resetDates
  */
@@ -30,6 +26,12 @@ export const deleteTransaction = (id) => (dispatch) =>
   fetch(`/transactions/delete?id=${id}`, {method: 'DELETE'})
     .then(res => res.json())
     .then(json => dispatch({ type: DELETE_TRANSACTION, id: json.id }));
+
+export const DELETE_VENDOR= 'DELETE_VENDOR';
+export const deleteVendor = (vendor) => (dispatch) =>
+  fetch(`/transactions/deletebyvendor?vendor=${vendor}`, {method: 'POST'})
+    .then(res => res.json())
+    .then(json => dispatch({ type: DELETE_VENDOR, vendor }));
 
 export const ADD_CATEGORY = 'ADD_CATEGORY';
 export const addCategory = (categoryName) => (dispatch) =>
@@ -91,6 +93,15 @@ export const toggleIncomeFilter = () => ({ type: TOGGLE_INCOME_FILTER });
 
 export const TOGGLE_EXPENSES_FILTER = 'TOGGLE_EXPENSES_FILTER';
 export const toggleExpensesFilter = () => ({ type: TOGGLE_EXPENSES_FILTER });
+
+export const TRANSACTION_SORT = 'TRANSACTION_SORT';
+export const sortTransactions = (field) => ({ type: TRANSACTION_SORT, field });
+
+export const VENDOR_SORT = 'VENDOR_SORT';
+export const sortVendors = (field) => ({ type: VENDOR_SORT, field });
+
+export const CATEGORY_SORT = 'CATEGORY_SORT';
+export const sortCategories = (field) => ({ type: CATEGORY_SORT, field });
 
 //export const INVALIDATE_VIEW = 'INVALIDATE_VIEW';
 //export const invalidateView = (view) => ({ type: INVALIDATE_VIEW, view});

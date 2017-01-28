@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { getVisibleTransactions, getVendors } from 'reducers';
-import { changeCategory } from 'actions';
+import { changeCategory, deleteVendor, sortVendors } from 'actions';
 
 
 class Vendors extends React.Component {
@@ -11,12 +11,17 @@ class Vendors extends React.Component {
   }
   render(){
     if(this.props.isFetching) return(<div>Loading...</div>);
+
+    // sort vendors
+    let vendors = _.sortBy(this.props.vendors, (v) => v[this.props.sort.field]);
+    if(this.props.sort.order === 'DESC') vendors = vendors.reverse();
+
     return (
-      <VendorTable vendors={this.props.vendors}
+      <VendorTable vendors={vendors}
                    deleteVendor={this.props.deleteVendor}
                    categories={this.props.categories}
                    changeCategory={this.props.changeCategory}
-                   sort={this.props.sort} />
+                   sort={this.props.sortVendors} />
     );
   }
 }
@@ -25,9 +30,12 @@ const mapStateToProps = (state, props) => ({
   transactions: getVisibleTransactions(state, props),
   categories: state.categories,
   vendors: getVendors(state, props),
+  sort: state.sort.vendors,
 });
 const mapDispatchToProps = (dispatch) => ({
   changeCategory: (vendor, category) => dispatch(changeCategory(vendor, category)),
+  deleteVendor: (vendor) => dispatch(deleteVendor(vendor)),
+  sortVendors: (field) => dispatch(sortVendors(field)),
 });
 Vendors = connect(mapStateToProps, mapDispatchToProps)(Vendors);
 
@@ -37,10 +45,10 @@ const VendorTable = (props) => (
   <table className="Vendors">
     <thead>
     <tr>
-      <th onClick={props.sort.bind(this)}>Vendor</th>
-      <th onClick={props.sort.bind(this)}>Count</th>
-      <th onClick={props.sort.bind(this)}>Total</th>
-      <th onClick={props.sort.bind(this)}>Category</th>
+      <th onClick={() => props.sort('vendor')}>Vendor</th>
+      <th onClick={() => props.sort('count')}>Count</th>
+      <th onClick={() => props.sort('total')}>Total</th>
+      <th onClick={() => props.sort('category')}>Category</th>
       <th>Deleted</th>
     </tr>
     </thead>
@@ -65,7 +73,7 @@ const VendorRow = (props) => (
                       changeCategory={props.changeCategory} />
     </td>
     <td>
-      <span className="button" id={props.vendor.vendor} onClick={props.deleteVendor.bind(this)}>
+      <span className="button" id={props.vendor.vendor} onClick={(e) => props.deleteVendor(props.vendor.vendor)}>
         delete
       </span>
     </td>
