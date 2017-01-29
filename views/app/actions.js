@@ -58,7 +58,7 @@ export const fetchTransactions = (getState) => {
   if(getIsFetchingTransactions(getState())) Promise.resolve();
   return (dispatch) => {
     dispatch(requestTransactions());
-    return fetch('/transactions/get?limit=200')
+    return fetch('/transactions/get?limit=3000')
             .then(res => res.json())
             .then(res => dispatch(receiveTransactions(res)),
                   err => console.log("Error fetching transactions:", err));

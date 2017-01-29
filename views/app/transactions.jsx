@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import * as _ from 'lodash';
-import { getVisibleTransactions, getVendors } from 'reducers';
+import { getVisibleTransactions } from 'reducers';
 import { deleteTransaction, restoreTransaction, sortTransactions } from 'actions';
 
 
@@ -10,16 +10,14 @@ class Transactions extends React.Component {
     super();
     this.state = {};
   }
+  shouldComponentUpdate(newProps) {
+    return this.props.transactions !== newProps.transactions;
+  }
   render(){
     if(this.props.isFetching) return(<div>Loading...</div>);
-    let transactions = this.props.transactions
-      .map(t => {
-        var date = new Date(t.date);
-        var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return Object.assign(t, {date: `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`});
-      });
 
     // transaction sort
+    let transactions = this.props.transactions;
     const { field, order } = this.props.sort;
     if(field === 'date') transactions = _.sortBy(transactions, (t) => new Date(t[field]));
     else transactions = _.sortBy(transactions, (t) => t[field]);
@@ -39,8 +37,7 @@ class Transactions extends React.Component {
 }
 const mapStateToProps = (state, props) => ({
   isFetching: state.isFetchingTransactions,
-  transactions: getVisibleTransactions(state, props),
-  vendors: getVendors(state, props),
+  transactions: state.isFetchingTransactions ? [] : getVisibleTransactions(state, props),
   sort: state.sort.transactions,
 });
 const mapDispatchToProps = (dispatch) => ({
@@ -75,13 +72,17 @@ const TransactionTableHeader = (props) => (
   <th onClick={() => props.sortTransactions(props.field)}>{props.field}</th>
 );
 
-const TransactionRow = (props) => (
+const TransactionRow = (props) => {
+  const date = new Date(props.transaction.date);
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const formattedDate = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+  return (
   <tr>
     <td>{props.transaction.id}</td>
     <td>{props.transaction.transactor}</td>
     <td>{props.transaction.amount}</td>
     <td>{props.transaction.vendor}</td>
-    <td>{props.transaction.date}</td>
+    <td>{formattedDate}</td>
     <td>{props.transaction.category}</td>
     <td>
       <span className="button" id={props.transaction.id} onClick={() => props.delRestTransaction(props.transaction.id)}>
@@ -89,5 +90,5 @@ const TransactionRow = (props) => (
       </span>
     </td>
   </tr>
-);
-
+  )
+};

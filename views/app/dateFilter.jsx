@@ -8,11 +8,17 @@ import { updateStartDate, updateEndDate } from 'actions';
 let DateFilter = ({startDate, endDate, updateStartDate, updateEndDate}) => (
   <div className="datePicker">
     <span>Start date: </span><DatePicker dateFormat="YYYY/MM/DD"
+                                         todayButton={"Today"}
                                          selected={startDate}
+                                         disabledKeyboardNavigation
+                                         showYearDropdown
                                          onChange={(date) => updateStartDate(date)} />
     <br/>
     <span>End date: </span><DatePicker dateFormat="YYYY/MM/DD"
+                                       todayButton={"Today"}
                                        selected={endDate}
+                                       disabledKeyboardNavigation
+                                       showYearDropdown
                                        onChange={(date) => updateEndDate(date)} />
   </div>
 );

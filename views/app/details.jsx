@@ -18,10 +18,9 @@ let Details = ({transactions = [], vendors = [], isFetching = true}) => {
 };
 const mapStateToProps = (state, props) => ({
   isFetching: state.isFetchingTransactions,
-  transactions: getVisibleTransactions(state, props),
-  vendors: getVendors(state, props),
+  transactions: state.isFetchingTransactions ? [] : getVisibleTransactions(state, props),
+  vendors: state.isFetchingTransactions ? [] : getVendors(state, props),
 });
-//const mapDispatchToProps = (dispatch) => ({ onTodoClick(id){ dispatch(toggleTodo(id)) }, });
 Details = connect(mapStateToProps)(Details);
 
 export default Details;

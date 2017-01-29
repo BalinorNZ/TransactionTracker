@@ -153,7 +153,7 @@ function myViewmodel() {
 	});
 
 	// get transactions list
-	io.socket.get('/transactions/get?limit=300', function(data, res){
+	io.socket.get('/transactions/get?limit=3000', function(data, res){
 	  // 450ms
 		_.each(data.transactions, function(transaction){
 			self.transactions.push(ko.mapping.fromJS(transaction));

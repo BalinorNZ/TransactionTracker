@@ -125,12 +125,12 @@ const isFetchingCategories = (state = false, action) => {
   }
 }
 
-const search = (state = { search: '' }, action) => {
+const search = (state = '', action) => {
   switch (action.type) {
     case SEARCH:
       return action.search;
     default:
-      return '';
+      return state;
   }
 };
 
@@ -178,50 +178,34 @@ export default rootReducer;
  * SELECTORS
 */
 
-// these are non-memoized selectors
 const getTransactions = (state, props) => state.transactions;
 const getCategoryNames = (state, props) => state.categories;
 const getSearch = (state, props) => state.search;
 const getIncomeFilter = state => state.incomeFilter;
 const getExpensesFilter = state => state.expensesFilter;
 const getDateFilter = state => state.dateFilter;
-
 export const getIsFetchingTransactions = (state) => state.isFetchingTransactions;
 export const getIsFetchingCategories = (state) => state.isFetchingCategories;
 
-const filterTransactionsByDeleted = (state, props) => {
-  switch (props.filter) {
-    case 'DELETED':
-      return state.transactions.filter(t => t.deleted);
-    case 'ACTIVE':
-    default:
-      return state.transactions.filter(t => !t.deleted);
-  }
-};
-
-const filterTransactionsByDate = createSelector(
-  [ getDateFilter, filterTransactionsByDeleted ],
-  (dateFilter, transactions) => _.reject(transactions, (t) => {
-    if(moment(t.date, 'D MMM YYYY') > dateFilter.endDate) return true;
-    if(moment(t.date, 'D MMM YYYY') < dateFilter.startDate) return true;
-    return false;
-  }),
-);
-
-// this is a memoized reselect selector
-const filterTransactionsBySearch = createSelector(
-  [ getSearch, filterTransactionsByDate ],
-  (search, transactions) => transactions.filter(t => t.vendor.toLowerCase().indexOf(search.toLowerCase()) > -1),
-  //allTransactions.filter(t => t.vendor.toLowerCase().includes(this.state.search.toLowerCase()));
-);
-
+const getFilterProp = (state, props) => props.filter;
 export const getVisibleTransactions = createSelector(
-  [ getIncomeFilter, getExpensesFilter, filterTransactionsBySearch ],
-  (income, expenses, transactions) => (
-    transactions
+  [ getTransactions, getDateFilter, getSearch, getIncomeFilter, getExpensesFilter, getFilterProp ],
+  (transactions, dateFilter, search, income, expenses, filterProp) => {
+    return _.reject(transactions, (t) => {
+      if(new Date(t.date) > dateFilter.endDate) return true;
+      if(new Date(t.date) < dateFilter.startDate) return true;
+      return false;
+    }).filter(t => filterProp === 'DELETED' ? t.deleted : !t.deleted)
       .filter(t => income ? true : t.amount < 0)
       .filter(t => expenses ? true : t.amount > 0)
-  ),
+      .filter(t => t.vendor.toLowerCase().indexOf(search.toLowerCase()) > -1);
+      //allTransactions.filter(t => t.vendor.toLowerCase().includes(this.state.search.toLowerCase()));
+  },
+);
+
+export const getVisibleTransactionCount = createSelector(
+  [ getVisibleTransactions ],
+  (transactions) => transactions.length,
 );
 
 export const getVendors = createSelector(
