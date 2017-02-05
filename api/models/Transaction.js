@@ -17,7 +17,7 @@ module.exports = {
   		defaultsTo: 'D',
   	},
 
-  	vendor: {
+    merchant: {
   		type: 'string',
   	},
 

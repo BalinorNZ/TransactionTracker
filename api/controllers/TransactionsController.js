@@ -1,11 +1,5 @@
-/* global Category */
-/* global sails */
-/* global Transaction */
 /**
  * TransactionsController
- *
- * @description :: Server-side logic for managing transactions
- * @help        :: See http://links.sailsjs.org/docs/controllers
  */
 
 module.exports = {
@@ -18,18 +12,31 @@ module.exports = {
     return res.view('react', { layout: 'tutorialLayout' });
   },
 
+  import: (req, res) => {
+    console.log("Importing CSV.");
+    req.file('file').upload((err, files) => {
+      if(err) console.log(err);
+      if(files.length === 0) console.log("No files sent!");
+      Import.processCSV(files[0].fd)
+        .then(contents => Import.formatTransactions(contents))
+        .then(transactions => Import.importTransactions(transactions))
+        .then(transactions => res.json({ transactions }));
+    });
+  },
+
 	get: function(req, res) {
     let params = {};
     if(req.param('limit')) params.limit = req.param('limit');
 		console.time('Transaction.find (get transactions)');
 		Transaction.find(params).exec(function(err, transactions) {
       console.timeEnd('Transaction.find (get transactions)');
-			return res.json({ transactions: transactions });
+      const transactionmap = transactions.map(t => Object.assign({}, t, { merchant: t.vendor} ));
+			return res.json({ transactions: transactionmap });
 		});
 	},
 
 	deleteTransaction: function(req, res) {
-		var id = req.param('id');
+		const id = req.param('id');
 		Transaction.findOne({ id: id }).exec(function(err, transaction) {
 			sails.log.info('Marking transaction as deleted ', transaction.id);
 			transaction.deleted = true;
@@ -40,17 +47,17 @@ module.exports = {
 		});
 	},
 
-  deleteTransactionsByVendor: function(req, res) {
-    var vendor = req.param('vendor');
-    Transaction.update({vendor}, { deleted: true }, (e, result) => {
-      if(e) console.log("deleteTransactionsByVendor failed", e);
+  deleteTransactionsByMerchant: function(req, res) {
+    const merchant = req.param('merchant');
+    Transaction.update({merchant}, { deleted: true }, (e, result) => {
+      if(e) console.log("deleteTransactionsByMerchant failed", e);
       sails.log.info('Marking', result.length, 'transactions as deleted.');
       return res.json({ transactions: result });
     });
   },
 
 	restoreTransaction: function(req, res) {
-		var id = req.param('id');
+		const id = req.param('id');
 		Transaction.findOne({ id: id }).exec(function(err, transaction) {
 			sails.log.info('Restoring transaction ', transaction.id);
 			transaction.deleted = false;
@@ -62,8 +69,8 @@ module.exports = {
 	},
 
 	setCategory: function(req, res) {
-		var transaction = req.param('transaction');
-		var category = req.param('category');
+		const transaction = req.param('transaction');
+		const category = req.param('category');
 		Transaction.findOne({ id: transaction }).exec(function(err, transaction) {
 			sails.log.info('Setting category ', category, ' on transaction ', transaction.id);
 			transaction.category = category;
@@ -74,11 +81,11 @@ module.exports = {
 		});
 	},
 
-  setCategoryByVendor: function(req, res) {
-    var vendor = req.param('vendor');
-    var category = req.param('category');
-    Transaction.update({vendor}, {category}, (e, result) => {
-      if(e) console.log("setCategoryByVendor failed", e);
+  setCategoryByMerchant: function(req, res) {
+    const merchant = req.param('merchant');
+    const category = req.param('category');
+    Transaction.update({merchant}, {category}, (e, result) => {
+      if(e) console.log("setCategoryByMerchant failed", e);
       sails.log.info('Setting category on', result.length, 'transactions.');
       return res.json({ transactions: result });
     });
@@ -93,7 +100,7 @@ module.exports = {
 	},
 
 	removeCategory: function(req, res) {
-		var name = req.param('name');
+		const name = req.param('name');
 		Category.findOne({ name: name }).exec(function(err, category) {
 			if(err) return res.serverError(err);
 			if(category){
@@ -107,7 +114,7 @@ module.exports = {
 	},
 
 	saveCategory: function (req, res) {
-		var name = req.param('name');
+		const name = req.param('name');
 		Category.findOne({name: name}, function(err, category){
 			if(err) return cb(err);
 			if(category != undefined) {
@@ -173,7 +180,7 @@ csv.fromPath("credit.CSV").on("data", function(data){
 		myData[ind].amount += amount;
 		myData[ind].count++;
 	} else {
-		myDatapoint = { vendor: data[3],
+		myDatapoint = { merchant: data[3],
 						amount: amount,
 						count: 1,
 						};
@@ -215,7 +222,7 @@ function cleanData (data) {
 		myData[ind].amount += amount;
 		myData[ind].count++;
 	} else {
-		myDatapoint = { vendor: data[3],
+		myDatapoint = { merchant: data[3],
 						amount: amount,
 						count: 1,
 						};
@@ -228,12 +235,12 @@ function cleanData (data) {
 	var dataObj = { transactor: myData[0],
 					direction: data[1],
 					amount: amount,
-					vendor: data[3],
+ merchant: data[3],
 					date: date,
 					date1: date1, };
 
 	// create db record
-	//console.log('Saving transaction: '+dataObj.vendor+' '+dataObj.amount);
+	//console.log('Saving transaction: '+dataObj.merchant+' '+dataObj.amount);
 	//Transaction.create(dataObj).exec(function(err){
 	//	if(err) {
 	//		console.log(err);
@@ -255,7 +262,7 @@ function getDate(dateStr, delimiter) {
 
 function myIndexOf(arr, o) {
     for (var i = 0; i < arr.length; i++) {
-        if (arr[i].vendor == o) {
+        if (arr[i].merchant == o) {
             return i;
         }
     }

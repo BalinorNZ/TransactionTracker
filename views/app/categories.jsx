@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getVisibleTransactions, getVendors, getCategories } from 'reducers';
+import { getVisibleTransactions, getMerchants, getCategories } from 'reducers';
 import { addCategory, removeCategory, sortCategories } from 'actions';
 
 
@@ -40,7 +40,7 @@ const mapStateToProps = (state, props) => ({
   isFetching: state.isFetchingTransactions,
   transactions: getVisibleTransactions(state, props),
   categories: getCategories(state, props),
-  vendors: getVendors(state, props),
+  merchants: getMerchants(state, props),
   sort: state.sort.categories,
 });
 
@@ -60,7 +60,7 @@ const CategoryTable = (props) => (
     <tr>
       <th onClick={() => props.sort('name')} id="name">Category</th>
       <th onClick={() => props.sort('transactionCount')} id="transactionCount">Transactions</th>
-      <th onClick={() => props.sort('vendorCount')} id="vendorCount">Vendors</th>
+      <th onClick={() => props.sort('merchantCount')} id="merchantCount">Merchants</th>
       <th onClick={() => props.sort('categoryTotal')} id="categoryTotal">Total</th>
       <th>Deleted</th>
     </tr>
@@ -78,7 +78,7 @@ const CategoryRow = (props) => (
   <tr>
     <td>{props.category.name}</td>
     <td>{props.category.transactionCount}</td>
-    <td>{props.category.vendorCount}</td>
+    <td>{props.category.merchantCount}</td>
     <td>{props.category.categoryTotal}</td>
     <td>
       <span className="button" id={props.category.id} onClick={() => props.removeCategory(props.category.name)}>

@@ -14,12 +14,13 @@ import {
   DELETE_TRANSACTION,
   RESTORE_TRANSACTION,
   CHANGE_CATEGORY,
-  DELETE_VENDOR,
+  DELETE_MERCHANT,
   TRANSACTION_SORT,
-  VENDOR_SORT,
+  MERCHANT_SORT,
   CATEGORY_SORT,
   UPDATE_START_DATE,
   UPDATE_END_DATE,
+  IMPORT_CSV,
 } from 'actions';
 
 
@@ -67,9 +68,9 @@ const transaction = (state = {}, action) => {
     case RESTORE_TRANSACTION:
       return +state.id === +action.id ? {...state, deleted: !state.deleted} : state;
     case CHANGE_CATEGORY:
-      return state.vendor === action.vendor ? {...state, category: action.category } : state;
-    case DELETE_VENDOR:
-      return state.vendor === action.vendor ? {...state, deleted: true } : state;
+      return state.merchant === action.merchant ? {...state, category: action.category } : state;
+    case DELETE_MERCHANT:
+      return state.merchant === action.merchant ? {...state, deleted: true } : state;
     default:
       return state;
   }
@@ -82,7 +83,7 @@ const transactions = (state = [], action) => {
     case DELETE_TRANSACTION:
     case RESTORE_TRANSACTION:
     case CHANGE_CATEGORY:
-    case DELETE_VENDOR:
+    case DELETE_MERCHANT:
       return state.map(t => transaction(t, action));
     default:
       return state;
@@ -137,7 +138,7 @@ const search = (state = '', action) => {
 const defaultSort = {
   transactions: { field: 'id', order: 'ASC' },
   deleted: { field: 'id', order: 'ASC' },
-  vendors:  { field: 'vendor', order: 'ASC' },
+  merchants:  { field: 'merchant', order: 'ASC' },
   categories:  { field: 'name', order: 'ASC' },
 }
 const sort = (state = defaultSort, action) => {
@@ -146,8 +147,8 @@ const sort = (state = defaultSort, action) => {
     case TRANSACTION_SORT:
       type = 'transactions';
       break;
-    case VENDOR_SORT:
-      type = 'vendors';
+    case MERCHANT_SORT:
+      type = 'merchants';
       break;
     case CATEGORY_SORT:
       type = 'categories';
@@ -157,7 +158,16 @@ const sort = (state = defaultSort, action) => {
   }
   if(state[type].field === field && state[type].order === 'ASC') order = 'DESC';
   return Object.assign({}, state, { [type]: { field, order }});
-}
+};
+
+const importTransactions = (state = [], action) => {
+  switch(action.type) {
+    case IMPORT_CSV:
+      return action.transactions;
+    default:
+      return state;
+  }
+};
 
 
 const rootReducer = combineReducers({
@@ -170,6 +180,7 @@ const rootReducer = combineReducers({
   incomeFilter,
   expensesFilter,
   dateFilter,
+  importTransactions,
 });
 export default rootReducer;
 
@@ -198,8 +209,8 @@ export const getVisibleTransactions = createSelector(
     }).filter(t => filterProp === 'DELETED' ? t.deleted : !t.deleted)
       .filter(t => income ? true : t.amount < 0)
       .filter(t => expenses ? true : t.amount > 0)
-      .filter(t => t.vendor.toLowerCase().indexOf(search.toLowerCase()) > -1);
-      //allTransactions.filter(t => t.vendor.toLowerCase().includes(this.state.search.toLowerCase()));
+      .filter(t => t.merchant.toLowerCase().indexOf(search.toLowerCase()) > -1);
+      //allTransactions.filter(t => t.merchant.toLowerCase().includes(this.state.search.toLowerCase()));
   },
 );
 
@@ -208,27 +219,27 @@ export const getVisibleTransactionCount = createSelector(
   (transactions) => transactions.length,
 );
 
-export const getVendors = createSelector(
+export const getMerchants = createSelector(
   [ getVisibleTransactions ],
   (transactions) => {
-    const transactionGroups = _.groupBy(transactions, (t) => !t.deleted && t.vendor);
-    const vendors = _.reduce(transactionGroups, (memo, transactions, vendor) => {
-      if (vendor == 'undefined') return memo;
+    const transactionGroups = _.groupBy(transactions, (t) => !t.deleted && t.merchant);
+    const merchants = _.reduce(transactionGroups, (memo, transactions, merchant) => {
+      if (merchant == 'undefined') return memo;
       const total = parseFloat(transactions
         .reduce((total, t) => total + t.amount, 0)
         .toFixed(2));
-      return memo.concat([{ vendor, total, count: _.size(transactions), category: transactions[0].category }]);
+      return memo.concat([{ merchant, total, count: _.size(transactions), category: transactions[0].category }]);
     }, []);
-    return vendors;
+    return merchants;
   }
 );
 
 export const getCategories = createSelector(
-  [ getCategoryNames, getVisibleTransactions, getVendors ],
-  (categoryNames, transactions, vendors) => categoryNames.map(c => ({
+  [ getCategoryNames, getVisibleTransactions, getMerchants ],
+  (categoryNames, transactions, merchants) => categoryNames.map(c => ({
     id: c.id,
     name: c.name,
-    vendorCount: vendors.reduce((total, v) => v.category === c.name ? total+1 : total, 0),
+    merchantCount: merchants.reduce((total, v) => v.category === c.name ? total+1 : total, 0),
     transactionCount: transactions.reduce((total, t) => t.category === c.name ? total+1 : total, 0),
     categoryTotal: +(transactions.reduce((total, t) => t.category === c.name ? total+t.amount : total, 0).toFixed(2)),
   }))

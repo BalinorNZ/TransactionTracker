@@ -6,14 +6,22 @@ import { getIsFetchingTransactions, getIsFetchingCategories } from 'reducers';
  resetDates
  */
 
-//export const LOAD_VENDORS = 'LOAD_VENDORS';
-//export const loadVendors = (res) => ({ type: LOAD_VENDORS, transactions: res.transactions });
+//export const LOAD_MERCHANTS = 'LOAD_MERCHANTS';
+//export const loadMerchants = (res) => ({ type: LOAD_MERCHANTS, transactions: res.transactions });
+export const IMPORT_CSV = 'IMPORT_CSV';
+export const importCSV = (files) => (dispatch) => {
+  let data = new FormData();
+  data.append('file', files[0]);
+  return fetch(`/transactions/import`, {method: 'POST', body: data })
+    .then(res => res.json())
+    .then(json => dispatch({ type: IMPORT_CSV, transactions: json.transactions }));
+};
 
 export const CHANGE_CATEGORY = 'CHANGE_CATEGORY';
-export const changeCategory = (vendor, category) => (dispatch) =>
-  fetch(`/categories/setbyvendor?vendor=${vendor}&category=${category}`, {method: 'POST'})
+export const changeCategory = (merchant, category) => (dispatch) =>
+  fetch(`/categories/setbymerchant?merchant=${merchant}&category=${category}`, {method: 'POST'})
    .then(res => res.json())
-   .then(json => dispatch({ type: CHANGE_CATEGORY, vendor, category }));
+   .then(json => dispatch({ type: CHANGE_CATEGORY, merchant, category }));
 
 export const RESTORE_TRANSACTION = 'RESTORE_TRANSACTION';
 export const restoreTransaction = (id) => (dispatch) =>
@@ -27,11 +35,11 @@ export const deleteTransaction = (id) => (dispatch) =>
     .then(res => res.json())
     .then(json => dispatch({ type: DELETE_TRANSACTION, id: json.id }));
 
-export const DELETE_VENDOR= 'DELETE_VENDOR';
-export const deleteVendor = (vendor) => (dispatch) =>
-  fetch(`/transactions/deletebyvendor?vendor=${vendor}`, {method: 'POST'})
+export const DELETE_MERCHANT= 'DELETE_MERCHANT';
+export const deleteMerchant = (merchant) => (dispatch) =>
+  fetch(`/transactions/deletebymerchant?merchant=${merchant}`, {method: 'POST'})
     .then(res => res.json())
-    .then(json => dispatch({ type: DELETE_VENDOR, vendor }));
+    .then(json => dispatch({ type: DELETE_MERCHANT, merchant }));
 
 export const ADD_CATEGORY = 'ADD_CATEGORY';
 export const addCategory = (categoryName) => (dispatch) =>
@@ -103,8 +111,8 @@ export const updateEndDate = (date) => ({ type: UPDATE_END_DATE, date });
 export const TRANSACTION_SORT = 'TRANSACTION_SORT';
 export const sortTransactions = (field) => ({ type: TRANSACTION_SORT, field });
 
-export const VENDOR_SORT = 'VENDOR_SORT';
-export const sortVendors = (field) => ({ type: VENDOR_SORT, field });
+export const MERCHANT_SORT = 'MERCHANT_SORT';
+export const sortMerchants = (field) => ({ type: MERCHANT_SORT, field });
 
 export const CATEGORY_SORT = 'CATEGORY_SORT';
 export const sortCategories = (field) => ({ type: CATEGORY_SORT, field });
@@ -119,7 +127,7 @@ export const sortCategories = (field) => ({ type: CATEGORY_SORT, field });
 //     transactions: {
 //       0: {...}
 //     },
-//     vendors: {
+//     merchants: {
 //       0: {...}
 //     },
 //   }

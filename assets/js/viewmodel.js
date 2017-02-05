@@ -302,15 +302,19 @@ function myViewmodel() {
 		var prop = event.target.innerText.toLowerCase();
 		console.log('sorting table by '+prop);
 		if(prop == 'date') {
+		  console.time("Sort Date");
 			var sorted = _.sortBy(self.displayTransactions(), function(transaction){
 				var date = new Date(transaction.date());
 				return date;
 			});
+      console.timeEnd("Sort Date");
 		} else {
+      console.time("Sort");
 			var sorted = _.sortBy(self.displayTransactions(), function(transaction){
 				var value = transaction[prop]();
 				return value;
 			});
+      console.timeEnd("Sort");
 		}
 		if(self.transactionSortProp() == prop){
 			var reverse = dateFilter(sorted);

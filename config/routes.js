@@ -40,11 +40,15 @@ module.exports.routes = {
     controller: 'transactions',
     action: 'index',
   },
-  '/vendors': {
+  '/merchants': {
     controller: 'transactions',
     action: 'index',
   },
   '/categories': {
+    controller: 'transactions',
+    action: 'index',
+  },
+  '/importer': {
     controller: 'transactions',
     action: 'index',
   },
@@ -94,14 +98,19 @@ module.exports.routes = {
     action: 'setCategory',
   },
 
-  'post /categories/setbyvendor': {
+  'post /categories/setbymerchant': {
     controller: 'transactions',
-    action: 'setCategoryByVendor',
+    action: 'setCategoryByMerchant',
   },
 
-  'post /transactions/deletebyvendor': {
+  'post /transactions/deletebymerchant': {
     controller: 'transactions',
-    action: 'deleteTransactionsByVendor',
+    action: 'deleteTransactionsByMerchant',
+  },
+
+  'post /transactions/import': {
+    controller: 'transactions',
+    action: 'import',
   },
 
   /***************************************************************************

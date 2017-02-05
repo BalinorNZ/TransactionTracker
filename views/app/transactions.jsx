@@ -23,7 +23,7 @@ class Transactions extends React.Component {
     else transactions = _.sortBy(transactions, (t) => t[field]);
     if(order === 'DESC') transactions = transactions.reverse();
 
-    let fields = ['id', 'transactor', 'amount', 'vendor', 'date', 'category'];
+    let fields = ['id', 'transactor', 'amount', 'merchant', 'date', 'category'];
     let delRestTransaction = this.props.filter === 'ACTIVE'
       && this.props.deleteTransaction
       || this.props.restoreTransaction;
@@ -73,6 +73,7 @@ const TransactionTableHeader = (props) => (
 );
 
 const TransactionRow = (props) => {
+  /* TODO: try using shouldComponentUpdate here */
   const date = new Date(props.transaction.date);
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const formattedDate = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
@@ -81,7 +82,7 @@ const TransactionRow = (props) => {
     <td>{props.transaction.id}</td>
     <td>{props.transaction.transactor}</td>
     <td>{props.transaction.amount}</td>
-    <td>{props.transaction.vendor}</td>
+    <td>{props.transaction.merchant}</td>
     <td>{formattedDate}</td>
     <td>{props.transaction.category}</td>
     <td>

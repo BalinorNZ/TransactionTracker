@@ -26,6 +26,34 @@ select {
   min-width: 120px;
 }
 
+.import-dialog {
+  width: 90%;
+  margin: auto;
+  margin-top: 30px;
+}
+
+.dropzone {
+  width: 90%;
+  height: 300px;
+  border-width: 2px;
+  border-color: rgb(102, 102, 102);
+  border-style: dashed;
+  border-radius: 5px;
+  margin: auto;
+  margin-top: 30px;
+  background-color: #eeeeee;
+  &:hover {
+    background-color: #dddddd;
+  }
+}
+
+.dropzone-text {
+  text-align: center;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .addCategoryForm {
   margin-bottom: 15px;
   button {
@@ -45,7 +73,7 @@ select {
 .filter-container {
   margin-bottom: 30px;
   position: relative;
-  .vendor-search {
+  .merchant-search {
     display: inline;
   }
   .type-filter {

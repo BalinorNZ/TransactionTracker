@@ -1,15 +1,15 @@
 import React from 'react';
 import * as _ from 'lodash';
 import { connect } from 'react-redux';
-import { getVisibleTransactions, getVendors } from 'reducers';
+import { getVisibleTransactions, getMerchants } from 'reducers';
 
 
-let Details = ({transactions = [], vendors = [], isFetching = true}) => {
+let Details = ({transactions = [], merchants = [], isFetching = true}) => {
     if(isFetching) return (<div>Loading...</div>);
     return(
       <ul className="stuff-list">
         <Count label={'Transactions'} items={transactions} />
-        <Count label={'Vendors'} items={vendors} />
+        <Count label={'Merchants'} items={merchants} />
         <Add label={'Nic total'} transactions={_.filter(transactions, t => t.transactor == 'Nic')} />
         <Add label={'Katie total'} transactions={_.filter(transactions, t => t.transactor == 'Katie')} />
         <Add label={'Total'} transactions={transactions} />
@@ -19,7 +19,7 @@ let Details = ({transactions = [], vendors = [], isFetching = true}) => {
 const mapStateToProps = (state, props) => ({
   isFetching: state.isFetchingTransactions,
   transactions: state.isFetchingTransactions ? [] : getVisibleTransactions(state, props),
-  vendors: state.isFetchingTransactions ? [] : getVendors(state, props),
+  merchants: state.isFetchingTransactions ? [] : getMerchants(state, props),
 });
 Details = connect(mapStateToProps)(Details);
 

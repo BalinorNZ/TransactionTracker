@@ -6,14 +6,15 @@ import { connect, Provider } from 'react-redux';
 import { BrowserRouter as Router, Match, Miss, Link } from 'react-router';
 import 'index.less';
 import Transactions from 'transactions';
-import Vendors from 'vendors';
+import Merchants from 'merchants';
 import Categories from 'categories';
 import Details from 'details';
 import Search from 'search';
 import DateFilter from 'dateFilter';
 import IncomeExpenditureFilter from 'incomeExpenditureFilter';
-import { fetchTransactions, fetchCategories } from 'actions';
+import { fetchTransactions, fetchCategories, importCSV } from 'actions';
 import rootReducer from 'reducers';
+import Dropzone from 'react-dropzone';
 window.Perf = require('react-addons-perf');
 
 
@@ -39,23 +40,45 @@ const App = () => (
           <Link to="/deleted">
             {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Deleted</li>}
           </Link>
-          <Link to="/vendors">
-            {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Vendors</li>}
+          <Link to="/merchants">
+            {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Merchants</li>}
           </Link>
           <Link to="/categories">
             {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Categories</li>}
+          </Link>
+          <Link to="/importer">
+            {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Import</li>}
           </Link>
         </ul>
 
         <Match exactly pattern="/" component={() => <Transactions filter="ACTIVE" />} />
         <Match exactly pattern="/deleted" component={() => <Transactions filter="DELETED" />} />
-        <Match exactly pattern="/vendors" component={() => <Vendors />} />
+        <Match exactly pattern="/merchants" component={() => <Merchants />} />
         <Match exactly pattern="/categories" component={() => <Categories />} />
+        <Match exactly pattern="/importer" component={() => <Importer />} />
       </div>
     </Router>
 
   </div>
 )
+
+
+let Importer = (props) => (
+  <div>
+    <Dropzone className="dropzone" onDrop={(acceptedFiles, rejectedFiles) => props.importCSV(acceptedFiles)}>
+      <div className="dropzone-text">Drop CSV here</div>
+    </Dropzone>
+    <div className="import-dialog">Imported {store.getState().importTransactions.length} transactions!</div>
+  </div>
+);
+const mapStateToProps = (state, props) => ({
+  importTransactions: state.importTransactions,
+});
+const mapDispatchToProps = (dispatch) => ({
+  importCSV: (files) => dispatch(importCSV(files)),
+});
+Importer = connect(mapStateToProps, mapDispatchToProps)(Importer);
+
 
 const configureStore = () => {
   const persistedState = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();

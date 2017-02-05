@@ -6,10 +6,12 @@
   "keywords": [],
   "dependencies": {
     "ejs": "^2.5.5",
+    "fast-csv": "^2.3.1",
     "grunt": "^1.0.1",
     "lodash": "^4.17.4",
     "moment": "^2.17.1",
     "react-datepicker": "^0.39.0",
+    "react-dropzone": "^3.9.2",
     "sails": "^0.12.11",
     "sails-disk": "^0.10.10",
     "sails.io.js": "^1.1.4",
@@ -41,8 +43,8 @@
   },
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "webpack-dev-server --inline --colors",
-    "client": "sails lift",
+    "client": "webpack-dev-server --inline --colors",
+    "server": "sails lift",
     "debug": "node debug app.js"
   },
   "main": "app.js",

@@ -5,8 +5,8 @@ import { getVisibleTransactionCount } from 'reducers';
 
 
 let Search = (props) => (
-  <div className="vendor-search">
-    Search {props.transactionCount} transactions by vendor:&nbsp;
+  <div className="merchant-search">
+    Search {props.transactionCount} transactions by merchant:&nbsp;
     <input type="text" onChange={(e) => props.doSearch(e)} />
   </div>
 );

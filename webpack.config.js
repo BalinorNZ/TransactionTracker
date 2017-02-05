@@ -8,7 +8,8 @@ module.exports = {
   },
 
   devServer: {
-    outputPath: path.join(__dirname, 'assets/js')
+    outputPath: path.join(__dirname, 'assets/js'),
+    stats: { chunks: false }
   },
 
   output: {
