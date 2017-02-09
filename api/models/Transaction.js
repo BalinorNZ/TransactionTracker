@@ -1,8 +1,5 @@
 /**
 * Transaction.js
-*
-* @description :: TODO: You might write a short summary of how this model works and what it represents here.
-* @docs        :: http://sailsjs.org/#!documentation/models
 */
 
 module.exports = {
@@ -11,32 +8,43 @@ module.exports = {
 
   attributes: {
 
+    account: {
+      type: 'string',
+      defaultsTo: null,
+    },
+
+    type: {
+      type: 'string',
+      defaultsTo: null,
+    },
+
+    card: {
+      type: 'string',
+      defaultsTo: null,
+    },
+
   	direction: {
   		type: 'string',
   		enum: ['D', 'C', 'M'],
   		defaultsTo: 'D',
   	},
 
+    amount: {
+      type: 'float',
+    },
+
     merchant: {
   		type: 'string',
-  	},
-
-  	amount: {
-  		type: 'float',
-  	},
-
-  	transactor: {
-  		type: 'string',
-  		enum: ['Nic', 'Katie', 'Direct'],
-  		defaultsTo: 'Direct',
+      defaultsTo: null,
   	},
 
   	date: {
   		type: 'date',
   	},
 
-  	date1: {
-  		type: 'date',
+  	details: {
+  		type: 'string',
+      defaultsTo: null,
   	},
 
     category: {

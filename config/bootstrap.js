@@ -13,45 +13,45 @@
 
 module.exports.bootstrap = function (cb) {
 
-  var retry = 0;
+  // var retry = 0;
+  //
+  // function importCSV(filename) {
+  //   sails.config.globals.DB_LOCK = true;
+  //   Import.import(filename, function (err) {
+  //     if (err) sails.log.error(err);
+  //   });
+  // }
+  //
+  // var tryImport = function (filename) {
+  //   if (!sails.config.globals.DB_LOCK) {
+  //     importCSV(filename);
+  //   } else {
+  //     sails.log.info('DB locked, trying again in a second.');
+  //     retry++;
+  //     if (retry <= 1) {
+  //       setTimeout(function () { tryImport(filename); }, 1000);
+  //     } else {
+  //       sails.log.info('Reached maximum retrys.');
+  //       retry = 0;
+  //     }
+  //   }
+  // }
+  //
+  // function scanCsv() {
+  //   var fs = require('fs');
+  //   fs.watch('./transactions/combo.CSV', function (event, filename) {
+  //     if (filename === null) filename = 'combo.CSV';
+  //
+  //     sails.log.info(event, 'detected for file', filename);
+  //
+  //     if (event != 'change') return;
+  //
+  //     tryImport(filename);
+  //
+  //   });
+  // }
 
-  function importCSV(filename) {
-    sails.config.globals.DB_LOCK = true;
-    Import.import(filename, function (err) {
-      if (err) sails.log.error(err);
-    });
-  }
-
-  var tryImport = function (filename) {
-    if (!sails.config.globals.DB_LOCK) {
-      importCSV(filename);
-    } else {
-      sails.log.info('DB locked, trying again in a second.');
-      retry++;
-      if (retry <= 1) {
-        setTimeout(function () { tryImport(filename); }, 1000);
-      } else {
-        sails.log.info('Reached maximum retrys.');
-        retry = 0;
-      }
-    }
-  }
-
-  function scanCsv() {
-    var fs = require('fs');
-    fs.watch('./transactions/combo.CSV', function (event, filename) {
-      if (filename === null) filename = 'combo.CSV';
-
-      sails.log.info(event, 'detected for file', filename);
-
-      if (event != 'change') return;
-
-      tryImport(filename);
-
-    });
-  }
-
-  scanCsv();
+  //scanCsv();
 
   // It's very important to trigger this callback method when you are finished
   // with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)

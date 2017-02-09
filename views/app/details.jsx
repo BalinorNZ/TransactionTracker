@@ -10,8 +10,8 @@ let Details = ({transactions = [], merchants = [], isFetching = true}) => {
       <ul className="stuff-list">
         <Count label={'Transactions'} items={transactions} />
         <Count label={'Merchants'} items={merchants} />
-        <Add label={'Nic total'} transactions={_.filter(transactions, t => t.transactor == 'Nic')} />
-        <Add label={'Katie total'} transactions={_.filter(transactions, t => t.transactor == 'Katie')} />
+        <Add label={'Nic total'} transactions={_.filter(transactions, t => t.card.substr(-4, 4) === '2726')} />
+        <Add label={'Katie total'} transactions={_.filter(transactions, t => t.card.substr(-4, 4) === '2734')} />
         <Add label={'Total'} transactions={transactions} />
       </ul>
     );
@@ -29,7 +29,7 @@ export default Details;
 const Add = ({label, transactions}) => {
   const total = transactions
     .filter(t => !t.deleted)
-    .filter(t => !(t.transactor === undefined))
+    .filter(t => !(t.card === undefined))
     .reduce((c, t) => c + t.amount, 0)
     .toFixed(2);
   return (

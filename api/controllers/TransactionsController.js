@@ -17,10 +17,16 @@ module.exports = {
     req.file('file').upload((err, files) => {
       if(err) console.log(err);
       if(files.length === 0) console.log("No files sent!");
+      console.time("import");
       Import.processCSV(files[0].fd)
         .then(contents => Import.formatTransactions(contents))
         .then(transactions => Import.importTransactions(transactions))
-        .then(transactions => res.json({ transactions }));
+        .then(transactions => res.json({ transactions }))
+        .then(pass => { console.timeEnd("import"); return pass;})
+        .catch(e => {
+          console.log("Error:", e);
+          res.json({ error: e });
+        });
     });
   },
 
@@ -30,8 +36,7 @@ module.exports = {
 		console.time('Transaction.find (get transactions)');
 		Transaction.find(params).exec(function(err, transactions) {
       console.timeEnd('Transaction.find (get transactions)');
-      const transactionmap = transactions.map(t => Object.assign({}, t, { merchant: t.vendor} ));
-			return res.json({ transactions: transactionmap });
+			return res.json({ transactions });
 		});
 	},
 
