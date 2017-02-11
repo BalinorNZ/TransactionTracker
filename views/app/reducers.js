@@ -80,8 +80,8 @@ const transactions = (state = [], action) => {
   switch (action.type) {
     case RECEIVE_TRANSACTIONS:
       return action.transactions;
-    //case IMPORT_CSV:
-    //  return [...state, action.transactions];
+    case IMPORT_CSV:
+      return [...state, ...action.transactions];
     case DELETE_TRANSACTION:
     case RESTORE_TRANSACTION:
     case CHANGE_CATEGORY:
@@ -165,7 +165,7 @@ const sort = (state = defaultSort, action) => {
 const importTransactions = (state = [], action) => {
   switch(action.type) {
     case IMPORT_CSV:
-      return action.transactions;
+      return action.transactions ? action.transactions : [];
     default:
       return state;
   }

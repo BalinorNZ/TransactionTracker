@@ -1,21 +1,18 @@
+//function *(filepath){
+//   const rows = yield fromPathAsync(filepath);
+//   console.log("rows", rows);
+//   return rows;
+// });
 
-const findTransactionAsync = (query) => {
+module.exports.receiveUpload = (req) => {
   return new Promise((resolve, reject) => {
-    Transaction.find(query, (e, dbTransactions) => {
-      if(e) return reject(e);
-      resolve(dbTransactions);
+    req.file('file').upload((err, files) => {
+      if(err) return reject(err);
+      if(files.length === 0) return reject('No files were sent!');
+      resolve(files);
     });
   });
 };
-
-const createTransactionAsync = (transaction) => {
-  return new Promise((resolve, reject) => {
-    Transaction.create(transaction).exec((e, newTransaction) => {
-      if(e) return reject(e);
-      resolve(newTransaction);
-    });
-  });
-}
 
 module.exports.processCSV = (filepath) => {
   return new Promise((resolve, reject) => {
@@ -28,41 +25,22 @@ module.exports.processCSV = (filepath) => {
   })
 };
 
-module.exports.importTransactions = (transactions) => {
-  // TODO: Detect transfers between accounts?
-  // TODO: Update redux state with new transactions on client
-  try {
-    Transaction.find({}, (e, dbTransactions) => {
-      let existingTransactions = 0;
-      let newTransactions = [];
-      transactions.forEach(transaction => {
-        if(e) console.log(e);
-
-        if(transaction != undefined
-          && dbTransactions.some(t =>
-            t.date.toISOString() === transaction.date
-            && t.amount === transaction.amount
-            && t.merchant === transaction.merchant
-            && t.direction === transaction.direction)) {
-          // transaction already imported
-          existingTransactions ++;
-        } else {
-          // create db record
-          sails.log.info('Saving transaction:', dbTransactions.length, transaction.merchant, transaction.amount);
-          if(dbTransactions.length > 0) transaction.category = dbTransactions[0].category;
-          Transaction.create(transaction).exec((e, newTransaction) => {
-            e && console.log(e);
-            newTransactions.push(newTransaction);
-          });
-        }
-      });
-      sails.log.warn(existingTransactions, "transactions already existed and were skipped.");
-      console.log('new trans', newTransactions);
+module.exports.findTransactionAsync = (query) => {
+  return new Promise((resolve, reject) => {
+    Transaction.find(query, (e, dbTransactions) => {
+      if(e) return reject(e);
+      resolve(dbTransactions);
     });
-    return transactions;
-  } catch(e) {
-    console.log(e);
-  }
+  });
+};
+
+module.exports.createTransactionAsync = (transactions) => {
+  return new Promise((resolve, reject) => {
+    Transaction.create(transactions).exec((e, newTransactions) => {
+      if(e) return reject(e);
+      resolve(newTransactions);
+    });
+  });
 };
 
 // detect column headings or ask user to define columns on client?

@@ -1,6 +1,29 @@
 /**
  * TransactionsController
  */
+const runGenerator = (g) => {
+  var it = g(), ret;
+
+  // asynchronously iterate over generator
+  (function iterate(val){
+    ret = it.next( val );
+
+    if (!ret.done) {
+      // poor man's "is it a promise?" test
+      if ("then" in ret.value) {
+        // wait on the promise
+        ret.value.then( iterate );
+      }
+      // immediate value: just send right back in
+      else {
+        // avoid synchronous recursion
+        setTimeout( function(){
+          iterate( ret.value );
+        }, 0 );
+      }
+    }
+  })();
+};
 
 module.exports = {
 
@@ -14,19 +37,26 @@ module.exports = {
 
   import: (req, res) => {
     console.log("Importing CSV.");
-    req.file('file').upload((err, files) => {
-      if(err) console.log(err);
-      if(files.length === 0) console.log("No files sent!");
+    runGenerator(function *() {
       console.time("import");
-      Import.processCSV(files[0].fd)
-        .then(contents => Import.formatTransactions(contents))
-        .then(transactions => Import.importTransactions(transactions))
-        .then(transactions => res.json({ transactions }))
-        .then(pass => { console.timeEnd("import"); return pass;})
-        .catch(e => {
-          console.log("Error:", e);
-          res.json({ error: e });
-        });
+      const files = yield Import.receiveUpload(req);
+      const rows = yield Import.processCSV(files[0].fd);
+      const transactions = Import.formatTransactions(rows);
+      const dbTransactions = yield Import.findTransactionAsync({});
+      const transactionsToCreate = transactions.filter(transaction =>
+        !(transaction != undefined && dbTransactions.some(t =>
+          t.date.toISOString() === transaction.date
+          && t.amount === transaction.amount
+          && t.merchant === transaction.merchant
+          && t.direction === transaction.direction)
+        )
+      ).map(t => dbTransactions.length > 0 ? Object.assign({}, t, { category: dbTransactions[0].category }) : t);
+
+      sails.log.warn((transactions.length - transactionsToCreate.length), "transactions already exist.");
+      sails.log.info(`Saving ${transactionsToCreate.length} new transactions.`);
+      const createdTransactions = yield Import.createTransactionAsync(transactionsToCreate);
+      console.timeEnd("import");
+      res.json({ transactions: createdTransactions });
     });
   },
 
