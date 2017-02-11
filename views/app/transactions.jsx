@@ -80,7 +80,7 @@ const TransactionRow = (props) => {
   return (
   <tr>
     <td>{props.transaction.id}</td>
-    <td>{props.transaction.card.substr(-4, 4)}</td>
+    <td>{props.transaction.card ? props.transaction.card.substr(-4, 4) : ''}</td>
     <td>{props.transaction.amount}</td>
     <td>{props.transaction.merchant}</td>
     <td>{formattedDate}</td>

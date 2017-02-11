@@ -10,8 +10,8 @@ let Details = ({transactions = [], merchants = [], isFetching = true}) => {
       <ul className="stuff-list">
         <Count label={'Transactions'} items={transactions} />
         <Count label={'Merchants'} items={merchants} />
-        <Add label={'Nic total'} transactions={_.filter(transactions, t => t.card.substr(-4, 4) === '2726')} />
-        <Add label={'Katie total'} transactions={_.filter(transactions, t => t.card.substr(-4, 4) === '2734')} />
+        <Add label={'Nic total'} transactions={_.filter(transactions, t => t.card && t.card.substr(-4, 4) === '2726')} />
+        <Add label={'Katie total'} transactions={_.filter(transactions, t => t.card && t.card.substr(-4, 4) === '2734')} />
         <Add label={'Total'} transactions={transactions} />
       </ul>
     );

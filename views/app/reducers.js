@@ -211,7 +211,7 @@ export const getVisibleTransactions = createSelector(
     }).filter(t => filterProp === 'DELETED' ? t.deleted : !t.deleted)
       .filter(t => income ? true : t.amount < 0)
       .filter(t => expenses ? true : t.amount > 0)
-      .filter(t => t.merchant.toLowerCase().indexOf(search.toLowerCase()) > -1);
+      .filter(t => t.merchant && t.merchant.toLowerCase().indexOf(search.toLowerCase()) > -1);
       //allTransactions.filter(t => t.merchant.toLowerCase().includes(this.state.search.toLowerCase()));
   },
 );

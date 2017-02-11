@@ -1,9 +1,3 @@
-//function *(filepath){
-//   const rows = yield fromPathAsync(filepath);
-//   console.log("rows", rows);
-//   return rows;
-// });
-
 module.exports.receiveUpload = (req) => {
   return new Promise((resolve, reject) => {
     req.file('file').upload((err, files) => {
@@ -54,11 +48,12 @@ module.exports.formatTransactions = (rows) => {
     const types = ['Credit Interest Paid', 'Withholding Tax', 'Direct Credit', 'Payment',
                   'Debit Transfer', 'Direct Debit', 'Eft-Pos', 'Credit Transfer', 'Automatic Payment',
                   'Loan Payment', 'Salary', 'Bank Fee', 'Debit Interest', 'Atm Debit', 'Transfer',
-                  'Bill Payment', 'Loan Drawdown'];
+                  'Bill Payment', 'Loan Drawdown', 'Other Bank ATM Fee', 'Eft-Pos Credit', 'One-Off Payment'];
     switch(true){
+      // credit card has the credit card number at index 0
       case (((/^\d{4}-\*{4}-\*{4}-\d{4}$/).test(row[0])
             || row[0] === '' && (/[D|C]/).test(row[1]))
-            && row.length === 8):
+            && row.length > 5):
         transaction = {
           account: 'Visa',
           type: row[0] ? '' : row[3],
@@ -71,7 +66,8 @@ module.exports.formatTransactions = (rows) => {
           deleted: false,
         };
         break;
-      case ((/^\d\d\/\d\d\/\d{4}$/i).test(row[0]) && row.length === 4):
+        // fixed has the date at index 0
+      case ((/^\d\d\/\d\d\/\d{4}$/i).test(row[0]) && row.length > 3):
         transaction = {
           account: 'Fixed loan',
           type: row[1],
@@ -84,7 +80,8 @@ module.exports.formatTransactions = (rows) => {
           deleted: false,
         };
         break;
-      case ((types.indexOf(row[0]) >= 0) && row.length === 9):
+      // flexi/online have the type at index 0
+      case ((types.indexOf(row[0]) >= 0) && row.length > 6):
         const details = { particulars: row[2], code: row[3], reference: row[4] };
         transaction = {
           account: 'Chequing', // online/flexi loan
@@ -117,6 +114,9 @@ const checkIfHeaderRow = row => {
 const getISODate = (dateStr, delimiter) => {
   delimiter = typeof delimiter !== 'undefined' ? delimiter : '/';
   const date = dateStr.split(delimiter);
+  // make sure there are leading 0's on day and month
+  date[0] = date[0].length != 2 ? `0${date[0]}` : date[0];
+  date[1] = date[1].length != 2 ? `0${date[1]}` : date[1];
   return `${date[2]}-${date[1]}-${date[0]}T12:00:00.000Z`;
 };
 

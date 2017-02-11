@@ -66,12 +66,12 @@ export const fetchTransactions = (getState) => {
   if(getIsFetchingTransactions(getState())) Promise.resolve();
   return (dispatch) => {
     dispatch(requestTransactions());
-    return fetch('/transactions/get?limit=3000')
+    return fetch('/transactions/get?limit=10000')
             .then(res => res.json())
             .then(res => dispatch(receiveTransactions(res)),
                   err => console.log("Error fetching transactions:", err));
   }
-}
+};
 
 export const REQUEST_CATEGORIES = 'REQUEST_CATEGORIES';
 export const requestCategories = () => ({ type: REQUEST_CATEGORIES });

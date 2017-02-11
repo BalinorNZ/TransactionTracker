@@ -37,26 +37,32 @@ module.exports = {
 
   import: (req, res) => {
     console.log("Importing CSV.");
-    runGenerator(function *() {
+    const co = require('co');
+    co(function *() {
       console.time("import");
       const files = yield Import.receiveUpload(req);
       const rows = yield Import.processCSV(files[0].fd);
       const transactions = Import.formatTransactions(rows);
       const dbTransactions = yield Import.findTransactionAsync({});
-      const transactionsToCreate = transactions.filter(transaction =>
-        !(transaction != undefined && dbTransactions.some(t =>
-          t.date.toISOString() === transaction.date
-          && t.amount === transaction.amount
-          && t.merchant === transaction.merchant
-          && t.direction === transaction.direction)
-        )
-      ).map(t => dbTransactions.length > 0 ? Object.assign({}, t, { category: dbTransactions[0].category }) : t);
+      const transactionsToCreate = transactions
+        .filter(t =>
+          t.direction && t.amount && t.date
+        ).filter(t =>
+          !(t != undefined && dbTransactions.some(dbt =>
+            dbt.date.toISOString() === t.date
+            && dbt.amount === t.amount
+            && dbt.merchant === t.merchant
+            && dbt.direction === t.direction))
+        ).map(t => dbTransactions.length > 0 ? Object.assign({}, t, { category: dbTransactions[0].category }) : t);
 
       sails.log.warn((transactions.length - transactionsToCreate.length), "transactions already exist.");
       sails.log.info(`Saving ${transactionsToCreate.length} new transactions.`);
       const createdTransactions = yield Import.createTransactionAsync(transactionsToCreate);
       console.timeEnd("import");
       res.json({ transactions: createdTransactions });
+    }).catch(e => {
+      console.log(e);
+      res.json({e});
     });
   },
 
