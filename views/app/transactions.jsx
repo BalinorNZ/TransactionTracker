@@ -23,7 +23,7 @@ class Transactions extends React.Component {
     else transactions = _.sortBy(transactions, (t) => t[field]);
     if(order === 'DESC') transactions = transactions.reverse();
 
-    let fields = ['id', 'card', 'amount', 'merchant', 'date', 'category'];
+    let fields = ['account', 'id', 'card', 'amount', 'merchant', 'type', 'date', 'category'];
     let delRestTransaction = this.props.filter === 'ACTIVE'
       && this.props.deleteTransaction
       || this.props.restoreTransaction;
@@ -79,10 +79,12 @@ const TransactionRow = (props) => {
   const formattedDate = `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
   return (
   <tr>
+    <td>{props.transaction.account}</td>
     <td>{props.transaction.id}</td>
     <td>{props.transaction.card ? props.transaction.card.substr(-4, 4) : ''}</td>
     <td>{props.transaction.amount}</td>
     <td>{props.transaction.merchant}</td>
+    <td>{props.transaction.type}</td>
     <td>{formattedDate}</td>
     <td>{props.transaction.category}</td>
     <td>

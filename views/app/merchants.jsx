@@ -46,6 +46,7 @@ const MerchantTable = (props) => (
     <thead>
     <tr>
       <th onClick={() => props.sort('merchant')}>Merchant</th>
+      <th onClick={() => props.sort('type')}>Type</th>
       <th onClick={() => props.sort('count')}>Count</th>
       <th onClick={() => props.sort('total')}>Total</th>
       <th onClick={() => props.sort('category')}>Category</th>
@@ -65,6 +66,7 @@ const MerchantTable = (props) => (
 const MerchantRow = (props) => (
   <tr>
     <td>{props.merchant.merchant}</td>
+    <td>{props.merchant.type}</td>
     <td>{props.merchant.count}</td>
     <td>{props.merchant.total}</td>
     <td>

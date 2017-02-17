@@ -43,7 +43,8 @@ module.exports = {
       const files = yield Import.receiveUpload(req);
       const rows = yield Import.processCSV(files[0].fd);
       const transactions = Import.formatTransactions(rows);
-      const dbTransactions = yield Import.findTransactionAsync({});
+      const dbTransactions = yield Import.findTransactionsAsync({});
+      const dbMerchants = yield Import.findMerchantsAsync({});
       const transactionsToCreate = transactions
         .filter(t =>
           t.direction && t.amount && t.date
@@ -53,7 +54,10 @@ module.exports = {
             && dbt.amount === t.amount
             && dbt.merchant === t.merchant
             && dbt.direction === t.direction))
-        ).map(t => dbTransactions.length > 0 ? Object.assign({}, t, { category: dbTransactions[0].category }) : t);
+        ).map(t => {
+          const merchant = _.findWhere(dbMerchants, {name: t.merchant});
+          return merchant ? Object.assign({}, t, {category: merchant.defaultCategory}) : t;
+        });
 
       sails.log.warn((transactions.length - transactionsToCreate.length), "transactions already exist.");
       sails.log.info(`Saving ${transactionsToCreate.length} new transactions.`);
@@ -112,6 +116,19 @@ module.exports = {
 	setCategory: function(req, res) {
 		const transaction = req.param('transaction');
 		const category = req.param('category');
+
+		// add merchant row with transaction.merchant, transaction.type, category
+    // if one doesn't already exist
+    const merchant = {
+      name: transaction.merchant,
+      defaultType: transaction.type,
+      defaultCategory: category,
+    };
+    Merchant.findOrCreate({ name: merchant.name }, merchant).exec((e, m) => {
+      if(e) console.log(e);
+      sails.log.info('Found or created merchant', m.name);
+    });
+
 		Transaction.findOne({ id: transaction }).exec(function(err, transaction) {
 			sails.log.info('Setting category ', category, ' on transaction ', transaction.id);
 			transaction.category = category;
@@ -125,6 +142,18 @@ module.exports = {
   setCategoryByMerchant: function(req, res) {
     const merchant = req.param('merchant');
     const category = req.param('category');
+
+    // add merchant row with transaction.merchant, transaction.type, category
+    // if one doesn't already exist
+    const merchantObj = {
+      name: merchant,
+      defaultCategory: category,
+    };
+    Merchant.findOrCreate({ name: merchantObj.name }, merchantObj).exec((e, m) => {
+      if(e) console.log(e);
+      sails.log.info('Found or created merchant', m.name);
+    });
+
     Transaction.update({merchant}, {category}, (e, result) => {
       if(e) console.log("setCategoryByMerchant failed", e);
       sails.log.info('Setting category on', result.length, 'transactions.');

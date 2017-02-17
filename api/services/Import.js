@@ -19,7 +19,16 @@ module.exports.processCSV = (filepath) => {
   })
 };
 
-module.exports.findTransactionAsync = (query) => {
+module.exports.findMerchantsAsync = (query) => {
+  return new Promise((resolve, reject) => {
+    Merchant.find(query, (e, dbMerchants) => {
+      if(e) return reject(e);
+      resolve(dbMerchants);
+    });
+  });
+};
+
+module.exports.findTransactionsAsync = (query) => {
   return new Promise((resolve, reject) => {
     Transaction.find(query, (e, dbTransactions) => {
       if(e) return reject(e);

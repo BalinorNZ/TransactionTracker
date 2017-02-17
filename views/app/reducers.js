@@ -211,6 +211,7 @@ export const getVisibleTransactions = createSelector(
     }).filter(t => filterProp === 'DELETED' ? t.deleted : !t.deleted)
       .filter(t => income ? true : t.amount < 0)
       .filter(t => expenses ? true : t.amount > 0)
+      .map(t => t.merchant ? t : Object.assign({}, t, { merchant: 'N/A' }))
       .filter(t => t.merchant && t.merchant.toLowerCase().indexOf(search.toLowerCase()) > -1);
       //allTransactions.filter(t => t.merchant.toLowerCase().includes(this.state.search.toLowerCase()));
   },
@@ -227,10 +228,26 @@ export const getMerchants = createSelector(
     const transactionGroups = _.groupBy(transactions, (t) => !t.deleted && t.merchant);
     const merchants = _.reduce(transactionGroups, (memo, transactions, merchant) => {
       if (merchant == 'undefined') return memo;
+      // get the mose common type for transactions with this merchant to display as merchant's type
+      const allTypes = transactions
+        .reduce((types, t) => {
+          if(t.type && t.type.length > 0) {
+            t.type in types ? types[t.type]++ : types[t.type] = 1;
+            return types;
+          } else {
+            return {};
+          }
+        }, {});
+      const types = Object.keys(allTypes);
+      const type = types.length > 0 ? types.reduce((a, b) => allTypes[a] > allTypes[b] ? a : b) : '';
+
       const total = parseFloat(transactions
         .reduce((total, t) => total + t.amount, 0)
         .toFixed(2));
-      return memo.concat([{ merchant, total, count: _.size(transactions), category: transactions[0].category }]);
+      //
+      // TODO: use merchant.defaultCategory from merchant table instead of transactions[0].category
+      //
+      return memo.concat([{ merchant, type, total, count: _.size(transactions), category: transactions[0].category }]);
     }, []);
     return merchants;
   }
@@ -241,7 +258,7 @@ export const getCategories = createSelector(
   (categoryNames, transactions, merchants) => categoryNames.map(c => ({
     id: c.id,
     name: c.name,
-    merchantCount: merchants.reduce((total, v) => v.category === c.name ? total+1 : total, 0),
+    merchantCount: merchants.reduce((total, m) => m.category === c.name ? total+1 : total, 0),
     transactionCount: transactions.reduce((total, t) => t.category === c.name ? total+1 : total, 0),
     categoryTotal: +(transactions.reduce((total, t) => t.category === c.name ? total+t.amount : total, 0).toFixed(2)),
   }))
