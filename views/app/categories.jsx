@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { getVisibleTransactions, getMerchants, getCategories } from 'reducers';
-import { addCategory, removeCategory, sortCategories } from 'actions';
+import { getVisibleTransactions, getMerchants, getCategories, getCategoryTransactions } from 'reducers';
+import { addCategory, removeCategory, sortCategories, selectCategory } from 'actions';
 
 
 class Categories extends React.Component {
@@ -9,9 +9,7 @@ class Categories extends React.Component {
     super();
     this.state = {};
   }
-  handleSubmit(e){
 
-  }
   render(){
     if(this.props.isFetching) return(<div>Loading...</div>);
 
@@ -31,7 +29,14 @@ class Categories extends React.Component {
         </form>
         <CategoryTable categories={categories}
                        removeCategory={this.props.removeCategory}
-                       sort={this.props.sortCategories} />
+                       sort={this.props.sortCategories}
+                       selectCategory={this.props.selectCategory}
+        />
+        <table className="selectedCategoryTable"><tbody>
+          {this.props.categoryTransactions.map(t =>
+            <tr key={t.createdAt}><td>{t.merchant}</td><td>{t.amount}</td><td>{t.date.substr(0, 9)}</td></tr>
+          )}
+        </tbody></table>
       </div>
     );
   }
@@ -42,12 +47,14 @@ const mapStateToProps = (state, props) => ({
   categories: getCategories(state, props),
   merchants: getMerchants(state, props),
   sort: state.sort.categories,
+  categoryTransactions: getCategoryTransactions(state, props),
 });
 
 const mapDispatchToProps = (dispatch) => ({
   addCategory: (category) => dispatch(addCategory(category)),
   removeCategory: (category) => dispatch(removeCategory(category)),
   sortCategories: (field) => dispatch(sortCategories(field)),
+  selectCategory: (category) => dispatch(selectCategory(category)),
 });
 Categories = connect(mapStateToProps, mapDispatchToProps)(Categories);
 
@@ -69,6 +76,7 @@ const CategoryTable = (props) => (
     {props.categories.map(c => <CategoryRow key={c.id}
                                             category={c}
                                             removeCategory={props.removeCategory}
+                                            selectCategory={props.selectCategory}
     />)}
     </tbody>
   </table>
@@ -76,7 +84,7 @@ const CategoryTable = (props) => (
 
 const CategoryRow = (props) => (
   <tr>
-    <td>{props.category.name}</td>
+    <td onClick={() => props.selectCategory(props.category.name)}>{props.category.name}</td>
     <td>{props.category.transactionCount}</td>
     <td>{props.category.merchantCount}</td>
     <td>{props.category.categoryTotal}</td>

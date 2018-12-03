@@ -117,6 +117,9 @@ export const sortMerchants = (field) => ({ type: MERCHANT_SORT, field });
 export const CATEGORY_SORT = 'CATEGORY_SORT';
 export const sortCategories = (field) => ({ type: CATEGORY_SORT, field });
 
+export const SELECT_CATEGORY = 'SELECT_CATEGORY';
+export const selectCategory = (category) => ({ type: SELECT_CATEGORY, category: category });
+
 //export const INVALIDATE_VIEW = 'INVALIDATE_VIEW';
 //export const invalidateView = (view) => ({ type: INVALIDATE_VIEW, view});
 

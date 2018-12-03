@@ -21,6 +21,7 @@ import {
   UPDATE_START_DATE,
   UPDATE_END_DATE,
   IMPORT_CSV,
+  SELECT_CATEGORY,
 } from 'actions';
 
 
@@ -31,7 +32,7 @@ const incomeFilter = (state = true, action) => {
     default:
       return state
   }
-}
+};
 const expensesFilter = (state = true, action) => {
   switch(action.type) {
     case TOGGLE_EXPENSES_FILTER:
@@ -39,13 +40,13 @@ const expensesFilter = (state = true, action) => {
     default:
       return state
   }
-}
+};
 
 
 const defaultDateFilter = {
   startDate: moment('20170101', 'YYYYMMDD'),
   endDate: moment(),
-}
+};
 const dateFilter = (state = defaultDateFilter, action) => {
   switch(action.type){
     //case RESET_DATES:
@@ -57,7 +58,7 @@ const dateFilter = (state = defaultDateFilter, action) => {
     default:
       return state;
   }
-}
+};
 
 // example of getting all transactions from a transactions hash using an array lookup table
 //const getAllTransactions = (state) => state.transactionIds.map(id => state.byId[id]);
@@ -74,7 +75,7 @@ const transaction = (state = {}, action) => {
     default:
       return state;
   }
-}
+};
 
 const transactions = (state = [], action) => {
   switch (action.type) {
@@ -101,7 +102,7 @@ const isFetchingTransactions = (state = false, action) => {
     default:
       return state;
   }
-}
+};
 
 const categories = (state = [], action) => {
   switch (action.type) {
@@ -126,7 +127,7 @@ const isFetchingCategories = (state = false, action) => {
     default:
       return state;
   }
-}
+};
 
 const search = (state = '', action) => {
   switch (action.type) {
@@ -142,7 +143,7 @@ const defaultSort = {
   deleted: { field: 'date', order: 'ASC' },
   merchants:  { field: 'merchant', order: 'ASC' },
   categories:  { field: 'name', order: 'ASC' },
-}
+};
 const sort = (state = defaultSort, action) => {
   let order = 'ASC', field = action.field, type = 'transactions';
   switch(action.type) {
@@ -171,6 +172,15 @@ const importTransactions = (state = [], action) => {
   }
 };
 
+const selectedCategory = (state = null, action) => {
+  switch(action.type) {
+    case SELECT_CATEGORY:
+      return action.category ? action.category : null;
+    default:
+      return state;
+  }
+};
+
 
 const rootReducer = combineReducers({
   transactions,
@@ -183,6 +193,7 @@ const rootReducer = combineReducers({
   expensesFilter,
   dateFilter,
   importTransactions,
+  selectedCategory,
 });
 export default rootReducer;
 
@@ -221,6 +232,10 @@ export const getVisibleTransactionCount = createSelector(
   [ getVisibleTransactions ],
   (transactions) => transactions.length,
 );
+
+export const getCategoryTransactions = (state, props) => {
+  return getVisibleTransactions(state, props).filter(t => t.category === state.selectedCategory);
+};
 
 export const getMerchants = createSelector(
   [ getVisibleTransactions ],
