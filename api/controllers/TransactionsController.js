@@ -72,6 +72,17 @@ module.exports = {
 
 	get: function(req, res) {
     let params = {};
+
+    // Update transactions with 'null' merchant field to have a copy of type field in the merchant field
+    // Transaction.find({ merchant: null }, (e, result) => {
+    //   result.forEach(t => {
+    //     Transaction.update(t, { merchant: t.type }, () => {
+    //       if(e) console.log("updating null merchants to transaction type failed", e);
+    //       sails.log.info('Updating null merchant field on', result.length, 'transactions.');
+    //     });
+    //   });
+    // });
+
     if(req.param('limit')) params.limit = req.param('limit');
 		console.time('Transaction.find (get transactions)');
 		Transaction.find(params).exec(function(err, transactions) {
@@ -167,10 +178,6 @@ module.exports = {
       return res.json({ transactions: result });
     });
   },
-
-  // updateNullMerchantToType: function(req, res) {
-  //   //   Transaction.update({'null'})
-  //   // },
 
 	getCategories: function(req, res) {
     console.time('Category.find (get categories)');
