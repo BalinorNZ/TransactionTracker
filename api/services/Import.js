@@ -12,7 +12,8 @@ module.exports.processCSV = (filepath) => {
   return new Promise((resolve, reject) => {
     const csv = require('fast-csv');
     let rows = [];
-    csv.fromPath(filepath)
+    // TODO: fix hardcoded path to tmp directory!!!
+    csv.fromPath('C:\\dev\\TransactionTracker\\.tmp\\uploads\\'+filepath)
       .on('data', (row) => rows.push(row))
       .on('end', () => resolve(rows))
       .on('data-invalid', (err) => reject(err));

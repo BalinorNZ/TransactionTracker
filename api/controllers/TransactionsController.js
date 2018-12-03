@@ -149,8 +149,15 @@ module.exports = {
       name: merchant,
       defaultCategory: category,
     };
+    console.log(merchantObj.name);
     Merchant.findOrCreate({ name: merchantObj.name }, merchantObj).exec((e, m) => {
-      if(e) console.log(e);
+      if (e) console.log(e);
+      if(m.category !== merchantObj.defaultCategory) {
+        Merchant.update(m, merchantObj, (e, result) => {
+          if(e) console.log("updating Merchant failed", e);
+          sails.log.info('Set default category for', result[0].name, 'to', result[0].defaultCategory);
+        });
+      }
       sails.log.info('Found or created merchant', m.name);
     });
 
@@ -160,6 +167,10 @@ module.exports = {
       return res.json({ transactions: result });
     });
   },
+
+  // updateNullMerchantToType: function(req, res) {
+  //   //   Transaction.update({'null'})
+  //   // },
 
 	getCategories: function(req, res) {
     console.time('Category.find (get categories)');

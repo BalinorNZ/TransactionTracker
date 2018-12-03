@@ -19,7 +19,7 @@ export const importCSV = (files) => (dispatch) => {
 
 export const CHANGE_CATEGORY = 'CHANGE_CATEGORY';
 export const changeCategory = (merchant, category) => (dispatch) =>
-  fetch(`/categories/setbymerchant?merchant=${merchant}&category=${category}`, {method: 'POST'})
+  fetch(`/categories/setbymerchant?merchant=${encodeURIComponent(merchant)}&category=${encodeURIComponent(category)}`, {method: 'POST'})
    .then(res => res.json())
    .then(json => dispatch({ type: CHANGE_CATEGORY, merchant, category }));
 

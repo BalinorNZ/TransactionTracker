@@ -22,8 +22,8 @@ th {
   text-transform: capitalize;
 }
 
-select {
-  min-width: 120px;
+select, .Select {
+  min-width: 150px;
 }
 
 .import-dialog {
@@ -81,3 +81,97 @@ select {
     display: inline;
   }
 }
+
+.select-container {
+  width: 140px;
+  .select-default {
+    color: #777;
+  }
+  .select-display {
+    cursor:pointer;
+    padding: 3px 10px;
+    border: 1px solid #ddd;
+  }
+  .select-arrow {
+    float: right;
+  }
+  .select-options {
+    position: absolute;
+    border: 1px solid #ddd;
+    background: white;
+    display: none;
+    &.active {
+      display: block;
+    }
+    span {
+      width: 120px;
+      cursor: pointer;
+      display: block;
+      padding: 3px 10px;
+      color: #777;
+      &:hover {
+        color: black;
+      }
+    }
+  }
+}
+
+/*
+div.select-container {
+  &.show>div.select-options {
+    //.transform(scale(1, 1));
+  }
+
+    i {
+      position:relative;
+      width:14px;
+      margin-left:(10px+14)*-1;
+      font-size:1.125em;
+      font-weight:bold;
+      padding-right:10px;
+      text-align:right;
+    }
+  }
+
+  div.select-options {
+    float:left;
+    width:100%;
+    position:relative;
+    //.transform(scale(1, 0));
+    //.transition(-webkit-transform ease 250ms);
+    //.transition(transform ease 250ms);
+
+    div {
+      position:absolute;
+      width:100%;
+      z-index:2;
+      cursor:pointer;
+      background:white;
+
+      div {
+        float:left;
+        width:100%;
+        padding:0 10px;
+        font-size:14px;
+        //.border-box;
+        border:solid 1px black;
+        border-top:none;
+
+        &:hover {
+          background:#F0F0F0;
+        }
+
+        &.selected {
+          background: black;
+          color:white;
+        }
+
+        span {
+          float:left;
+          width:100%;
+        }
+      }
+    }
+  }
+}
+*/

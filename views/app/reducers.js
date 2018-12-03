@@ -43,7 +43,7 @@ const expensesFilter = (state = true, action) => {
 
 
 const defaultDateFilter = {
-  startDate: moment('20130101', 'YYYYMMDD'),
+  startDate: moment('20170101', 'YYYYMMDD'),
   endDate: moment(),
 }
 const dateFilter = (state = defaultDateFilter, action) => {
@@ -138,8 +138,8 @@ const search = (state = '', action) => {
 };
 
 const defaultSort = {
-  transactions: { field: 'id', order: 'ASC' },
-  deleted: { field: 'id', order: 'ASC' },
+  transactions: { field: 'date', order: 'ASC' },
+  deleted: { field: 'date', order: 'ASC' },
   merchants:  { field: 'merchant', order: 'ASC' },
   categories:  { field: 'name', order: 'ASC' },
 }
@@ -228,6 +228,8 @@ export const getMerchants = createSelector(
     const transactionGroups = _.groupBy(transactions, (t) => !t.deleted && t.merchant);
     const merchants = _.reduce(transactionGroups, (memo, transactions, merchant) => {
       if (merchant == 'undefined') return memo;
+      const transactionList = transactions.map(t => ({ date: t.date.substr(0, 9), details: t.details, amount: t.amount }));
+
       // get the mose common type for transactions with this merchant to display as merchant's type
       const allTypes = transactions
         .reduce((types, t) => {
@@ -247,7 +249,7 @@ export const getMerchants = createSelector(
       //
       // TODO: use merchant.defaultCategory from merchant table instead of transactions[0].category
       //
-      return memo.concat([{ merchant, type, total, count: _.size(transactions), category: transactions[0].category }]);
+      return memo.concat([{ merchant, type, total, count: _.size(transactions), category: transactions[0].category, transactionList }]);
     }, []);
     return merchants;
   }

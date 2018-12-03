@@ -3,7 +3,7 @@ import { render, unmountComponentAtNode } from 'react-dom';
 import thunkMiddleware from 'redux-thunk';
 import { createStore, applyMiddleware } from 'redux';
 import { connect, Provider } from 'react-redux';
-import { BrowserRouter as Router, Match, Miss, Link } from 'react-router';
+import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
 import 'index.less';
 import Transactions from 'transactions';
 import Merchants from 'merchants';
@@ -15,8 +15,7 @@ import IncomeExpenditureFilter from 'incomeExpenditureFilter';
 import { fetchTransactions, fetchCategories, importCSV } from 'actions';
 import rootReducer from 'reducers';
 import Dropzone from 'react-dropzone';
-window.Perf = require('react-addons-perf');
-
+// window.Perf = require('react-addons-perf');
 
 const App = () => (
   <div>
@@ -34,33 +33,35 @@ const App = () => (
     <Router>
       <div className="tabs" id="navcontainer">
         <ul id="navlist" className="tables">
-          <Link to="/" activeOnlyWhenExact>
-            {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Transactions</li>}
-          </Link>
-          <Link to="/deleted">
-            {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Deleted</li>}
-          </Link>
-          <Link to="/merchants">
-            {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Merchants</li>}
-          </Link>
-          <Link to="/categories">
-            {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Categories</li>}
-          </Link>
-          <Link to="/importer">
-            {({isActive, onClick}) => <li className={isActive ? 'selected' : ''} onClick={onClick}>Import</li>}
-          </Link>
+          <li><NavLink to="/" exact activeClassName="selected">
+            Transactions
+          </NavLink></li>
+          <li><NavLink to="/deleted" activeClassName="selected">
+            Deleted
+          </NavLink></li>
+          <li><NavLink to="/merchants" activeClassName="selected">
+            Merchants
+          </NavLink></li>
+          <li><NavLink to="/categories" activeClassName="selected">
+            Categories
+          </NavLink></li>
+          <li><NavLink to="/importer" activeClassName="selected">
+            Import
+          </NavLink></li>
         </ul>
 
-        <Match exactly pattern="/" component={() => <Transactions filter="ACTIVE" />} />
-        <Match exactly pattern="/deleted" component={() => <Transactions filter="DELETED" />} />
-        <Match exactly pattern="/merchants" component={() => <Merchants />} />
-        <Match exactly pattern="/categories" component={() => <Categories />} />
-        <Match exactly pattern="/importer" component={() => <Importer />} />
+        <Route exact path="/" render={() => <Transactions filter="ACTIVE" />} />
+        <Route exact path="/deleted" render={() => <Transactions filter="DELETED" />} />
+        <Route exact path="/merchants" render={() => <Merchants />} />
+        <Route exact path="/categories" render={() => <Categories />} />
+        <Route exact path="/importer" render={() => <Importer />} />
       </div>
     </Router>
 
   </div>
-)
+);
+
+export default App;
 
 
 let Importer = (props) => (
@@ -81,14 +82,17 @@ Importer = connect(mapStateToProps, mapDispatchToProps)(Importer);
 
 
 const configureStore = () => {
+
+  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
   const persistedState = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
   const middlewares = [thunkMiddleware];
   return createStore(
     rootReducer,
-    persistedState,
-    applyMiddleware(...middlewares),
+    // persistedState,
+    composeEnhancers(applyMiddleware(...middlewares)),
   );
-}
+};
 
 const store = configureStore();
 store.dispatch(fetchCategories(store.getState)).then(() => store.getState());

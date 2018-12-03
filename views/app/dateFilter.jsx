@@ -9,14 +9,14 @@ let DateFilter = ({startDate, endDate, updateStartDate, updateEndDate}) => (
   <div className="datePicker">
     <span>Start date: </span><DatePicker dateFormat="YYYY/MM/DD"
                                          todayButton={"Today"}
-                                         selected={startDate}
+                                         selected={new Date(startDate)}
                                          disabledKeyboardNavigation
                                          showYearDropdown
                                          onChange={(date) => updateStartDate(date)} />
     <br/>
     <span>End date: </span><DatePicker dateFormat="YYYY/MM/DD"
                                        todayButton={"Today"}
-                                       selected={endDate}
+                                       selected={new Date(endDate)}
                                        disabledKeyboardNavigation
                                        showYearDropdown
                                        onChange={(date) => updateEndDate(date)} />

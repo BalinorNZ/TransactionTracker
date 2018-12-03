@@ -1,4 +1,6 @@
 import React from 'react';
+//import onClickOutside from 'react-onclickoutside';
+// import 'react-select/dist/react-select.css';
 import { connect } from 'react-redux';
 import { getVisibleTransactions, getMerchants } from 'reducers';
 import { changeCategory, deleteMerchant, sortMerchants } from 'actions';
@@ -65,7 +67,7 @@ const MerchantTable = (props) => (
 
 const MerchantRow = (props) => (
   <tr>
-    <td>{props.merchant.merchant}</td>
+    <td title={TransactionsTooltip(props.merchant.transactionList)}>{props.merchant.merchant}</td>
     <td>{props.merchant.type}</td>
     <td>{props.merchant.count}</td>
     <td>{props.merchant.total}</td>
@@ -74,6 +76,11 @@ const MerchantRow = (props) => (
                       merchant={props.merchant}
                       changeCategory={props.changeCategory} />
     </td>
+    {/*<td><Select name="categorySelector"*/}
+                {/*value={props.merchant.category}*/}
+                {/*options={_.sortBy(props.categories.map(c => ({ value: c.name, label: c.name })), 'label')}*/}
+                {/*onChange={(category) => props.changeCategory(props.merchant.merchant, category.value)} />*/}
+    {/*</td>*/}
     <td>
       <span className="button" id={props.merchant.merchant} onClick={(e) => props.deleteMerchant(props.merchant.merchant)}>
         delete
@@ -82,26 +89,58 @@ const MerchantRow = (props) => (
   </tr>
 );
 
+const TransactionsTooltip = (transactionList) => {
+  const tooltip = transactionList.map(t => (
+    `${t.date}\t${t.details}\t${t.amount}`
+  )).join('\n');
+  return tooltip;
+};
+
 class CategorySelect extends React.Component {
   constructor(){
     super();
     this.state = {
       categories: [],
+      listVisible: false,
     }
   }
+  select(merchant, category){
+    this.props.changeCategory(merchant, category);
+    this.setState({ listVisible: false });
+    document.removeEventListener("click", this.hide);
+  }
+  show(){
+    this.setState({ listVisible: true });
+    document.addEventListener("click", this.hide);
+  }
+  hide(){
+    this.setState({ listVisible: false });
+  }
   handleClick(){
-    this.setState({ categories: this.props.categories.filter(c => !(c.name === this.props.merchant.category)) });
+    this.state.listVisible ? document.removeEventListener("click", this.hide): document.addEventListener("click", this.hide);
+    this.state.listVisible ? this.setState({ listVisible: false }) : this.setState({ listVisible: true });
+    this.setState({ categories: _.sortBy(this.props.categories.filter(c => !(c.name === this.props.merchant.category)), 'name')});
   }
   //props.categories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)
   render() {
-    const { merchant, changeCategory } = this.props;
+    const { merchant } = this.props;
     return (
-      <select value={merchant.category ? merchant.category : ''}
-              onChange={(e) => this.props.changeCategory(merchant.merchant, e.target.value)}
-              onClick={this.handleClick.bind(this)}>
-        {merchant.category ? <option>{merchant.category}</option> : <option></option>}
-        {this.state.categories.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-      </select>
+      <div className={"select-container" + (this.state.listVisible ? " show" : "")}>
+        <div className={"select-display" + (this.state.listVisible ? " clicked" : "")}
+             onClick={this.handleClick.bind(this)}>
+          {merchant.category ? <span>{merchant.category}</span> : <span className="select-default">Select...</span>}
+          <span className="select-arrow">&#9662;</span>
+        </div>
+         <div className={"select-options" + (this.state.listVisible ? " active" : "")}>
+           <div>{this.state.categories.map(c => (
+             <span key={c.name}
+                   value={c.name}
+                   onClick={() => this.select(merchant.merchant, c.name)}>
+               {c.name}
+             </span>
+           ))}</div>
+         </div>
+      </div>
     );
   }
 }
