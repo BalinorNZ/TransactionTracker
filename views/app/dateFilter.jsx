@@ -12,14 +12,16 @@ let DateFilter = ({startDate, endDate, updateStartDate, updateEndDate}) => (
                                          selected={new Date(startDate)}
                                          disabledKeyboardNavigation
                                          showYearDropdown
-                                         onChange={(date) => updateStartDate(date)} />
+                                         onChange={(date) => updateStartDate(date)}
+                                         style={{ zIndex: 2 }} />
     <br/>
     <span>End date: </span><DatePicker dateFormat="YYYY/MM/DD"
                                        todayButton={"Today"}
                                        selected={new Date(endDate)}
                                        disabledKeyboardNavigation
                                        showYearDropdown
-                                       onChange={(date) => updateEndDate(date)} />
+                                       onChange={(date) => updateEndDate(date)}
+                                       style={{ zIndex: 2 }} />
   </div>
 );
 const mapStateToProps = (state, props) => ({

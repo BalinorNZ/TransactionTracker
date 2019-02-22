@@ -32,7 +32,7 @@ const App = () => (
 
     <Router>
       <div className="tabs" id="navcontainer">
-        <ul id="navlist" className="tables">
+        <ul id="navlist" className="tables" style={{zIndex: 1}}>
           <li><NavLink to="/" exact activeClassName="selected">
             Transactions
           </NavLink></li>
@@ -83,14 +83,15 @@ Importer = connect(mapStateToProps, mapDispatchToProps)(Importer);
 
 const configureStore = () => {
 
-  const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+  //const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 
   const persistedState = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__();
   const middlewares = [thunkMiddleware];
   return createStore(
     rootReducer,
+    applyMiddleware(...middlewares)
     // persistedState,
-    composeEnhancers(applyMiddleware(...middlewares)),
+    //composeEnhancers(applyMiddleware(...middlewares)),
   );
 };
 

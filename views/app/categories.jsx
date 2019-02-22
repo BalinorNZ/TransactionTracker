@@ -63,7 +63,7 @@ export default Categories;
 
 const CategoryTable = (props) => (
   <table className="Categories">
-    <thead>
+    <thead onClick={() => props.selectCategory(null)}>
     <tr>
       <th onClick={() => props.sort('name')} id="name">Category</th>
       <th onClick={() => props.sort('transactionCount')} id="transactionCount">Transactions</th>
